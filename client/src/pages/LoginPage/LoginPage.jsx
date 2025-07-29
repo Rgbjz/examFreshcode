@@ -4,17 +4,17 @@ import LoginForm from '../../components/LoginForm/LoginForm';
 import styles from './LoginPage.module.sass';
 
 const LoginPage = (props) => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  return (
-    <div className={styles.mainContainer}>
-      <div className={styles.loginContainer}>
-        <div className={styles.loginFormContainer}>
-          <LoginForm navigate={navigate} />
+    return (
+        <div className={styles.mainContainer}>
+            <div className={styles.loginContainer}>
+                <div className={styles.loginFormContainer}>
+                    <LoginForm navigate={navigate} />
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default LoginPage;

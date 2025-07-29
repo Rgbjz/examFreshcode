@@ -5,19 +5,19 @@ import { getUser } from '../../../store/slices/userSlice';
 import Spinner from '../../Spinner/Spinner';
 
 const OnlyNotAuthorizedUserRoute = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { data, isFetching } = useSelector((state) => state.userStore);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { data, isFetching } = useSelector((state) => state.userStore);
 
-  useEffect(() => {
-    dispatch(getUser(navigate));
-  }, []);
+    useEffect(() => {
+        dispatch(getUser(navigate));
+    }, []);
 
-  if (isFetching) {
-    return <Spinner />;
-  }
+    if (isFetching) {
+        return <Spinner />;
+    }
 
-  return data ? navigate('/') : <Outlet />;
+    return data ? navigate('/') : <Outlet />;
 };
 
 export default OnlyNotAuthorizedUserRoute;
