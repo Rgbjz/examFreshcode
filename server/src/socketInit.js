@@ -6,21 +6,21 @@ let notificationController;
 let chatController;
 
 const cors = {
-  origin: '*',
+    origin: '*',
 };
 
 module.exports.createConnection = (httpServer) => {
-  const io = new Server(httpServer, { cors });
-  notificationController = new NotificationController();
-  notificationController.connect('/notifications', io);
-  chatController = new ChatController();
-  chatController.connect('/chat', io);
+    const io = new Server(httpServer, { cors });
+    notificationController = new NotificationController();
+    notificationController.connect('/notifications', io);
+    chatController = new ChatController();
+    chatController.connect('/chat', io);
 };
 
 module.exports.getChatController = () => {
-  return chatController;
+    return chatController;
 };
 
 module.exports.getNotificationController = () => {
-  return notificationController;
+    return notificationController;
 };
