@@ -1,12 +1,14 @@
 {
-  "name": "squad-help-server",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "nodemon ./src/index.js",
-    "test": "jest"
-  },
-  "dependencies": {
+    "name": "squad-help-server",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "start": "nodemon ./src/index.js",
+        "test": "jest",
+        "prettier:check": "prettier --check .",
+        "prettier:write": "prettier --write ."
+    },
+    "dependencies": {
         "bcrypt": "^5.0.1",
         "cors": "^2.8.5",
         "dotenv": "^9.0.0",
@@ -23,15 +25,13 @@
         "socket.io": "^4.1.1",
         "uuid": "^8.3.2",
         "yup": "^0.32.9"
-  },
-    
+    },
     "devDependencies": {
         "eslint": "^8.27.0",
         "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "^2.26.0",
         "nodemon": "^2.0.20",
+        "prettier": "^3.6.2",
         "sequelize-cli": "^6.5.2"
-  }
+    }
 }
-
-

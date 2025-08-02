@@ -3,19 +3,19 @@ import { createSlice } from '@reduxjs/toolkit';
 const BUNDLE_SLICE_NAME = 'bundle';
 
 const initialState = {
-  bundle: null,
+    bundle: null,
 };
 
 const reducers = {
-  updateBundle: (state, { payload }) => {
-    state.bundle = payload;
-  },
+    updateBundle: (state, { payload }) => {
+        state.bundle = payload;
+    },
 };
 
 const bundleSlice = createSlice({
-  name: `${BUNDLE_SLICE_NAME}`,
-  initialState,
-  reducers,
+    name: `${BUNDLE_SLICE_NAME}`,
+    initialState,
+    reducers,
 });
 
 const { actions, reducer } = bundleSlice;

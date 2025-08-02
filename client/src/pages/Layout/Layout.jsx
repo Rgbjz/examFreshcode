@@ -7,22 +7,22 @@ import AuthHeader from '../../components/Layout/AuthHeader';
 import styles from './Layout.module.sass';
 
 const Layout = (props) => {
-  const { pathname } = useLocation();
+    const { pathname } = useLocation();
 
-  const isRegisterPathname = pathname === '/registration';
-  const isAuthPathname = pathname === '/login' || isRegisterPathname;
+    const isRegisterPathname = pathname === '/registration';
+    const isAuthPathname = pathname === '/login' || isRegisterPathname;
 
-  return (
-    <div className={styles.container}>
-      {isAuthPathname && <AuthHeader />}
-      {!isAuthPathname && <Header />}
-      <div className={styles.content}>
-        <Outlet />
-      </div>
-      {!isAuthPathname && <Footer />}
-      {isRegisterPathname && <RegistrationFooter />}
-    </div>
-  );
+    return (
+        <div className={styles.container}>
+            {isAuthPathname && <AuthHeader />}
+            {!isAuthPathname && <Header />}
+            <div className={styles.content}>
+                <Outlet />
+            </div>
+            {!isAuthPathname && <Footer />}
+            {isRegisterPathname && <RegistrationFooter />}
+        </div>
+    );
 };
 
 export default Layout;
