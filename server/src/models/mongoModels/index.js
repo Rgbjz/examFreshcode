@@ -9,7 +9,7 @@ mongoose
     .then(() =>
         console.log(`Connection to DB <<< ${config.database} >>> is Ok`)
     )
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 
 mongoose.set('debug', env === 'development');
 

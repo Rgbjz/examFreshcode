@@ -11,12 +11,10 @@ class NotificationController extends WebSocket {
     }
 
     emitChangeOfferStatus(target, message, contestId) {
-        this.io
-            .to(target)
-            .emit(CONSTANTS.NOTIFICATION_CHANGE_OFFER_STATUS, {
-                message,
-                contestId,
-            });
+        this.io.to(target).emit(CONSTANTS.NOTIFICATION_CHANGE_OFFER_STATUS, {
+            message,
+            contestId,
+        });
     }
 }
 

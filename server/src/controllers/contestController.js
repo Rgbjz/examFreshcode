@@ -27,7 +27,7 @@ module.exports.dataForContest = async (req, res, next) => {
         if (!characteristics) {
             return next(new ServerError());
         }
-        characteristics.forEach(characteristic => {
+        characteristics.forEach((characteristic) => {
             if (!response[characteristic.type]) {
                 response[characteristic.type] = [];
             }
@@ -86,7 +86,7 @@ module.exports.getContestById = async (req, res, next) => {
             ],
         });
         contestInfo = contestInfo.get({ plain: true });
-        contestInfo.Offers.forEach(offer => {
+        contestInfo.Offers.forEach((offer) => {
             if (offer.Rating) {
                 offer.mark = offer.Rating.mark;
             }
@@ -206,7 +206,7 @@ const resolveOffer = async (
     );
     transaction.commit();
     const arrayRoomsId = [];
-    updatedOffers.forEach(offer => {
+    updatedOffers.forEach((offer) => {
         if (
             offer.status === CONSTANTS.OFFER_STATUS_REJECTED &&
             creatorId !== offer.userId
@@ -281,9 +281,9 @@ module.exports.getCustomersContests = (req, res, next) => {
             },
         ],
     })
-        .then(contests => {
+        .then((contests) => {
             contests.forEach(
-                contest =>
+                (contest) =>
                     (contest.dataValues.count =
                         contest.dataValues.Offers.length)
             );
@@ -293,7 +293,7 @@ module.exports.getCustomersContests = (req, res, next) => {
             }
             res.send({ contests, haveMore });
         })
-        .catch(err => next(new ServerError(err)));
+        .catch((err) => next(new ServerError(err)));
 };
 
 module.exports.getContests = (req, res, next) => {
@@ -331,15 +331,15 @@ module.exports.getContests = (req, res, next) => {
             },
         ],
     })
-        .then(contests => {
-            contests.forEach(contest => {
+        .then((contests) => {
+            contests.forEach((contest) => {
                 contest.dataValues.count = contest.dataValues.Offers.length;
             });
 
             const haveMore = contests.length > 0;
             res.send({ contests, haveMore });
         })
-        .catch(err => {
+        .catch((err) => {
             next(new ServerError());
         });
 };
