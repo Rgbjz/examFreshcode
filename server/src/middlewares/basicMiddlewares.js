@@ -17,19 +17,23 @@ module.exports.parseBody = (req, res, next) => {
 };
 
 module.exports.canGetContest = async (req, res, next) => {
+    const {
+        params: { contestId },
+        tokenData: { role, userId },
+    } = req;
     let result = null;
     try {
-        if (req.tokenData.role === CONSTANTS.CUSTOMER) {
+        if (role === CONSTANTS.CUSTOMER) {
             result = await bd.Contests.findOne({
                 where: {
-                    id: req.headers.contestid,
-                    userId: req.tokenData.userId,
+                    id: contestId,
+                    userId: userId,
                 },
             });
-        } else if (req.tokenData.role === CONSTANTS.CREATOR) {
+        } else if (role === CONSTANTS.CREATOR) {
             result = await bd.Contests.findOne({
                 where: {
-                    id: req.headers.contestid,
+                    id: contestId,
                     status: {
                         [bd.Sequelize.Op.or]: [
                             CONSTANTS.CONTEST_STATUS_ACTIVE,

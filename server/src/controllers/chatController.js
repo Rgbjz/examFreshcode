@@ -4,6 +4,7 @@ const db = require('../models');
 const userQueries = require('./queries/userQueries');
 const controller = require('../socketInit');
 const _ = require('lodash');
+const mongoose = require('mongoose');
 
 module.exports.addMessage = async (req, res, next) => {
     const participants = [req.tokenData.userId, req.body.recipient];
@@ -78,7 +79,8 @@ module.exports.addMessage = async (req, res, next) => {
 };
 
 module.exports.getChat = async (req, res, next) => {
-    const participants = [req.tokenData.userId, req.body.interlocutorId];
+    const interlocutorId = Number(req.params.interlocutorId);
+    const participants = [req.tokenData.userId, interlocutorId];
     participants.sort(
         (participant1, participant2) => participant1 - participant2
     );
@@ -107,7 +109,7 @@ module.exports.getChat = async (req, res, next) => {
         ]);
 
         const interlocutor = await userQueries.findUser({
-            id: req.body.interlocutorId,
+            id: interlocutorId,
         });
         res.send({
             messages,
@@ -236,7 +238,6 @@ module.exports.favoriteChat = async (req, res, next) => {
 };
 
 module.exports.createCatalog = async (req, res, next) => {
-    console.log(req.body);
     const catalog = new Catalog({
         userId: req.tokenData.userId,
         catalogName: req.body.catalogName,
@@ -286,10 +287,10 @@ module.exports.removeChatFromCatalog = async (req, res, next) => {
     try {
         const catalog = await Catalog.findOneAndUpdate(
             {
-                _id: req.body.catalogId,
+                _id: req.params.catalogId,
                 userId: req.tokenData.userId,
             },
-            { $pull: { chats: req.body.chatId } },
+            { $pull: { chats: req.params.chatId } },
             { new: true }
         );
         res.send(catalog);
@@ -300,8 +301,8 @@ module.exports.removeChatFromCatalog = async (req, res, next) => {
 
 module.exports.deleteCatalog = async (req, res, next) => {
     try {
-        await Catalog.remove({
-            _id: req.body.catalogId,
+        await Catalog.deleteOne({
+            _id: req.params.catalogId,
             userId: req.tokenData.userId,
         });
         res.end();

@@ -27,7 +27,7 @@ module.exports.dataForContest = async (req, res, next) => {
         if (!characteristics) {
             return next(new ServerError());
         }
-        characteristics.forEach((characteristic) => {
+        characteristics.forEach(characteristic => {
             if (!response[characteristic.type]) {
                 response[characteristic.type] = [];
             }
@@ -41,9 +41,13 @@ module.exports.dataForContest = async (req, res, next) => {
 };
 
 module.exports.getContestById = async (req, res, next) => {
+    const {
+        params: { contestId },
+        tokenData: { userId, role },
+    } = req;
     try {
         let contestInfo = await db.Contests.findOne({
-            where: { id: req.headers.contestid },
+            where: { id: contestId },
             order: [[db.Offers, 'id', 'asc']],
             include: [
                 {
@@ -56,10 +60,7 @@ module.exports.getContestById = async (req, res, next) => {
                 {
                     model: db.Offers,
                     required: false,
-                    where:
-                        req.tokenData.role === CONSTANTS.CREATOR
-                            ? { userId: req.tokenData.userId }
-                            : {},
+                    where: role === CONSTANTS.CREATOR ? { userId: userId } : {},
                     attributes: { exclude: ['userId', 'contestId'] },
                     include: [
                         {
@@ -77,7 +78,7 @@ module.exports.getContestById = async (req, res, next) => {
                         {
                             model: db.Ratings,
                             required: false,
-                            where: { userId: req.tokenData.userId },
+                            where: { userId },
                             attributes: { exclude: ['userId', 'offerId'] },
                         },
                     ],
@@ -85,7 +86,7 @@ module.exports.getContestById = async (req, res, next) => {
             ],
         });
         contestInfo = contestInfo.get({ plain: true });
-        contestInfo.Offers.forEach((offer) => {
+        contestInfo.Offers.forEach(offer => {
             if (offer.Rating) {
                 offer.mark = offer.Rating.mark;
             }
@@ -107,7 +108,7 @@ module.exports.updateContest = async (req, res, next) => {
         req.body.fileName = req.file.filename;
         req.body.originalFileName = req.file.originalname;
     }
-    const contestId = req.body.contestId;
+    const contestId = req.params.contestId;
     delete req.body.contestId;
     try {
         const updatedContest = await contestQueries.updateContest(req.body, {
@@ -172,10 +173,12 @@ const resolveOffer = async (
     const finishedContest = await contestQueries.updateContestStatus(
         {
             status: db.sequelize.literal(`   CASE
-            WHEN "id"=${contestId}  AND "orderId"='${orderId}' THEN '${CONSTANTS.CONTEST_STATUS_FINISHED}'
-            WHEN "orderId"='${orderId}' AND "priority"=${
-                priority + 1
-            }  THEN '${CONSTANTS.CONTEST_STATUS_ACTIVE}'
+            WHEN "id"=${contestId}  AND "orderId"='${orderId}' THEN '${
+                CONSTANTS.CONTEST_STATUS_FINISHED
+            }'
+            WHEN "orderId"='${orderId}' AND "priority"=${priority + 1}  THEN '${
+                CONSTANTS.CONTEST_STATUS_ACTIVE
+            }'
             ELSE '${CONSTANTS.CONTEST_STATUS_PENDING}'
             END
     `),
@@ -203,7 +206,7 @@ const resolveOffer = async (
     );
     transaction.commit();
     const arrayRoomsId = [];
-    updatedOffers.forEach((offer) => {
+    updatedOffers.forEach(offer => {
         if (
             offer.status === CONSTANTS.OFFER_STATUS_REJECTED &&
             creatorId !== offer.userId
@@ -261,10 +264,14 @@ module.exports.setOfferStatus = async (req, res, next) => {
 };
 
 module.exports.getCustomersContests = (req, res, next) => {
+    const {
+        query: { contestStatus: status, limit, offset },
+        tokenData: { userId },
+    } = req;
     db.Contests.findAll({
-        where: { status: req.headers.status, userId: req.tokenData.userId },
-        limit: req.body.limit,
-        offset: req.body.offset ? req.body.offset : 0,
+        where: { status, userId },
+        limit,
+        offset: offset ? offset : 0,
         order: [['id', 'DESC']],
         include: [
             {
@@ -274,9 +281,9 @@ module.exports.getCustomersContests = (req, res, next) => {
             },
         ],
     })
-        .then((contests) => {
+        .then(contests => {
             contests.forEach(
-                (contest) =>
+                contest =>
                     (contest.dataValues.count =
                         contest.dataValues.Offers.length)
             );
@@ -286,45 +293,53 @@ module.exports.getCustomersContests = (req, res, next) => {
             }
             res.send({ contests, haveMore });
         })
-        .catch((err) => next(new ServerError(err)));
+        .catch(err => next(new ServerError(err)));
 };
 
 module.exports.getContests = (req, res, next) => {
+    const {
+        typeIndex,
+        contestId,
+        industry,
+        awardSort,
+        limit,
+        offset = 0,
+        ownEntries,
+    } = req.query;
+
     const predicates = UtilFunctions.createWhereForAllContests(
-        req.body.typeIndex,
-        req.body.contestId,
-        req.body.industry,
-        req.body.awardSort
+        typeIndex,
+        contestId,
+        industry,
+        awardSort
     );
+
     db.Contests.findAll({
         where: predicates.where,
         order: predicates.order,
-        limit: req.body.limit,
-        offset: req.body.offset ? req.body.offset : 0,
+        limit: Number(limit) || null,
+        offset: Number(offset) || 0,
         include: [
             {
                 model: db.Offers,
-                required: req.body.ownEntries,
-                where: req.body.ownEntries
-                    ? { userId: req.tokenData.userId }
-                    : {},
+                required: ownEntries === 'true',
+                where:
+                    ownEntries === 'true'
+                        ? { userId: req.tokenData.userId }
+                        : {},
                 attributes: ['id'],
             },
         ],
     })
-        .then((contests) => {
-            contests.forEach(
-                (contest) =>
-                    (contest.dataValues.count =
-                        contest.dataValues.Offers.length)
-            );
-            let haveMore = true;
-            if (contests.length === 0) {
-                haveMore = false;
-            }
+        .then(contests => {
+            contests.forEach(contest => {
+                contest.dataValues.count = contest.dataValues.Offers.length;
+            });
+
+            const haveMore = contests.length > 0;
             res.send({ contests, haveMore });
         })
-        .catch((err) => {
+        .catch(err => {
             next(new ServerError());
         });
 };
