@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import * as restController from '../../api/rest/restController';
+import * as userApi from '../../api/rest/userApi';
 import { clearContestStore } from './contestCreationSlice';
 import { changeProfileViewMode } from './userProfileSlice';
 import { updateUser } from './userSlice';
@@ -21,7 +21,7 @@ const initialState = {
 export const pay = decorateAsyncThunk({
     key: `${PAYMENT_SLICE_NAME}/pay`,
     thunk: async ({ data, navigate }, { dispatch }) => {
-        await restController.payMent(data);
+        await userApi.payMent(data);
         navigate('/dashboard', { replace: true });
         dispatch(clearContestStore());
     },
@@ -30,7 +30,7 @@ export const pay = decorateAsyncThunk({
 export const cashOut = decorateAsyncThunk({
     key: `${PAYMENT_SLICE_NAME}/cashOut`,
     thunk: async (payload, { dispatch }) => {
-        const { data } = await restController.cashOut(payload);
+        const { data } = await userApi.cashOut(payload);
         dispatch(updateUser.fulfilled(data));
         dispatch(changeProfileViewMode(CONSTANTS.USER_INFO_MODE));
     },
@@ -43,7 +43,7 @@ const reducers = {
     clearPaymentStore: () => initialState,
 };
 
-const extraReducers = (builder) => {
+const extraReducers = builder => {
     builder.addCase(pay.pending, pendingReducer);
     builder.addCase(pay.fulfilled, () => initialState);
     builder.addCase(pay.rejected, rejectedReducer);

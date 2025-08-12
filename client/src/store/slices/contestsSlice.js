@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import * as restController from '../../api/rest/restController';
+import * as contestsApi from '../../api/rest/contestsApi';
 import CONSTANTS from '../../constants';
 import { decorateAsyncThunk, pendingReducer } from '../../utils/store';
 
@@ -25,14 +25,14 @@ export const getContests = decorateAsyncThunk({
     thunk: async ({ requestData, role }) => {
         const { data } =
             role === CONSTANTS.CUSTOMER
-                ? await restController.getCustomersContests(requestData)
-                : await restController.getActiveContests(requestData);
+                ? await contestsApi.getCustomersContests(requestData)
+                : await contestsApi.getActiveContests(requestData);
         return data;
     },
 });
 
 const reducers = {
-    clearContestsList: (state) => {
+    clearContestsList: state => {
         state.error = null;
         state.contests = [];
     },
@@ -48,7 +48,7 @@ const reducers = {
     }),
 };
 
-const extraReducers = (builder) => {
+const extraReducers = builder => {
     builder.addCase(getContests.pending, pendingReducer);
     builder.addCase(getContests.fulfilled, (state, { payload }) => {
         state.isFetching = false;

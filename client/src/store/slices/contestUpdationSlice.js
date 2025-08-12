@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { updateStoreAfterUpdateContest } from './contestByIdSlice';
-import * as restController from '../../api/rest/restController';
+import * as contestsApi from '../../api/rest/contestsApi';
 import {
     decorateAsyncThunk,
     pendingReducer,
@@ -18,7 +18,8 @@ const initialState = {
 export const updateContest = decorateAsyncThunk({
     key: CONTEST_UPDATION_SLICE_NAME,
     thunk: async (payload, { dispatch }) => {
-        const { data } = await restController.updateContest(payload);
+        const { contestId, formData } = payload;
+        const { data } = await contestsApi.updateContest(contestId, formData);
         dispatch(updateStoreAfterUpdateContest(data));
     },
 });
@@ -27,7 +28,7 @@ const reducers = {
     clearContestUpdationStore: () => initialState,
 };
 
-const extraReducers = (builder) => {
+const extraReducers = builder => {
     builder.addCase(updateContest.pending, pendingReducer);
     builder.addCase(updateContest.fulfilled, fulfilledReducer);
     builder.addCase(updateContest.rejected, rejectedReducer);

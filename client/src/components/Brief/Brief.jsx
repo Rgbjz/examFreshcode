@@ -11,17 +11,21 @@ import styles from './Brief.module.sass';
 import ContestInfo from '../Contest/ContestInfo/ContestInfo';
 import Error from '../Error/Error';
 
-const Brief = (props) => {
-    const setNewContestData = (values) => {
-        const data = new FormData();
-        Object.keys(values).forEach((key) => {
-            if (key !== 'file' && values[key]) data.append(key, values[key]);
+const Brief = props => {
+    const setNewContestData = values => {
+        const formData = new FormData();
+        Object.keys(values).forEach(key => {
+            if (key !== 'file' && values[key])
+                formData.append(key, values[key]);
         });
         if (values.file instanceof File) {
-            data.append('file', values.file);
+            formData.append('file', values.file);
         }
-        data.append('contestId', props.contestData.id);
-        props.update(data);
+
+        props.update({
+            contestId: props.contestData.id,
+            formData: formData,
+        });
     };
 
     const getContestObjInfo = () => {
@@ -52,7 +56,7 @@ const Brief = (props) => {
             contestType,
         };
         const defaultData = {};
-        Object.keys(data).forEach((key) => {
+        Object.keys(data).forEach(key => {
             if (data[key]) {
                 if (key === 'originalFileName') {
                     defaultData.file = { name: data[key] };
@@ -103,15 +107,15 @@ const Brief = (props) => {
     );
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
     const { isEditContest } = state.contestByIdStore;
     const { contestUpdationStore, userStore } = state;
     return { contestUpdationStore, userStore, isEditContest };
 };
 
-const mapDispatchToProps = (dispatch) => ({
-    update: (data) => dispatch(updateContest(data)),
-    changeEditContest: (data) => dispatch(changeEditContest(data)),
+const mapDispatchToProps = dispatch => ({
+    update: data => dispatch(updateContest(data)),
+    changeEditContest: data => dispatch(changeEditContest(data)),
     clearContestUpdationStore: () => dispatch(clearContestUpdationStore()),
 });
 
