@@ -1,0 +1,37 @@
+.dropdown
+  position: absolute
+  top: 100%
+  left: 50%
+  transform: translateX(-50%)
+  display: flex           
+  gap: 20px
+  background: #fff
+  border-radius: 8px
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1)
+  z-index: 100  
+  overflow: hidden
+  width: 80%
+  align-items: stretch  
+  box-sizing: border-box  
+.leftContainer
+    flex: 0 0 50%
+    padding: 20px 10px    
+.rightContainer
+    flex: 0 0 45%
+    border-left:1px solid  rgb(104, 104, 104)
+    padding: 20px 10px
+.linksList
+  display: flex
+  flex-direction: column
+  font-size: 0.9rem
+  li
+    flex: 0 0 50%
+    box-sizing: border-box
+    padding: 6px       
+    a  
+        color: rgb(104, 104, 104)
+        border-radius: 5px
+        padding: 3px
+        &:hover 
+            color: #435399
+            background-color: #c6e8f3

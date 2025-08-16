@@ -1,0 +1,114 @@
+@mixin arrowEffect($size: 6%)
+  .arrowImg
+    transition: transform 0.3s ease
+    width: $size
+    height: $size
+    filter: brightness(0) invert(0)
+  &:hover .arrowImg
+    transform: translateX(50%)
+.dropdown
+  height:400px
+  position: absolute
+  top: 100%
+  left: 50%
+  transform: translateX(-50%)
+  display: flex           
+  gap: 10px
+  background: #fff
+  border-radius: 8px
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1)
+  z-index: 100
+  min-width: 1350px
+  overflow: hidden
+  width: 100%
+  align-items: stretch  
+  box-sizing: border-box 
+.firstContainer
+  font-size: 1rem 
+  min-width: 340px 
+  display: flex
+  flex-direction: column
+  gap: 25px   
+  padding: 20px
+  border-right: 1px solid rgb(104, 104, 104)
+.secondContainer
+  font-size: 1rem 
+  min-width: 340px 
+  display: flex
+  flex-direction: column
+  gap: 25px   
+  padding: 20px 5px
+  border-right: 1px solid rgb(104, 104, 104)
+.thirdContainer
+  font-size: 1rem 
+  min-width: 220px 
+  display: flex
+  flex-direction: column
+  gap: 25px   
+  padding: 20px  
+.fourthContainer
+  @include arrowEffect(50%)
+  height: 100%
+  display: flex
+  flex-direction: column  
+  text-align: start
+  background: linear-gradient(to bottom, #b7aaff, #f3f3f3)
+  gap:10px
+  padding: 20px
+  cursor: pointer  
+
+  .getStartedImgWrapper
+    align-self: center    
+    width: 90%
+    height: 60%   
+    border-radius: 10px
+    transition: transform 0.3s ease
+    overflow: hidden
+  .getStartedImg
+    width: 100%
+    height: 100%
+    transition: transform 0.3s ease  
+
+  &:hover
+    .getStartedImg
+      transform: scale(1.20) rotate(10deg)
+.secondItems
+  border-radius: 5px
+  padding: 4px  
+  &:hover 
+    color: #435399
+    background-color: #c6e8f3
+.bold
+    font-weight: bold
+.brandingContests
+    box-sizing: border-box
+    display: flex
+    flex-direction: column        
+    gap: 20px
+    margin: 10px 20px
+    text-align: start    
+    margin-left: 110px
+.icon 
+    display: flex
+    align-items: center    
+    gap: 5px 
+    background: none 
+    border: none 
+.arrowCenter
+    display: flex
+    align-items: center
+.agencyStyles
+    font-size: 1rem 
+.text
+    color: rgb(104, 104, 104)
+    font-size: 1rem  
+.textRight
+    text-align: start
+    font-size: 0.8rem  
+.popular
+  background: linear-gradient(to right, #8868e0, #2d2df3)
+  color: #fff
+  padding: 4px 6px
+  margin: 0px 0px 0px 5px 
+  border-radius: 10px
+  font-size: 13px
