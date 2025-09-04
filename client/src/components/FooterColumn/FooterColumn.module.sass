@@ -1,0 +1,72 @@
+.column
+  display: flex
+  flex-direction: column
+  gap: 30px
+  width: 100%
+  .titleWrapper
+    display: flex    
+    gap: 10px
+  h4
+    display: block
+    font-size: 18px
+    font-weight: 600
+    
+
+/* Кнопка-заголовок.
+   На десктопе она скрыта; на мобилках — показываем и кликаем */
+.header
+  display: none
+  justify-content: space-between
+  align-items: center
+  background: none
+  border: none
+  padding: 0
+  cursor: pointer
+  width: 100%  
+
+.icon
+  transition: transform 0.25s ease
+.rotate
+  transform: rotate(180deg)
+
+/* По умолчанию (десктоп): список всегда виден, как раньше */
+.list
+  display: flex
+  flex-direction: column
+  gap: 6px
+  line-height: 24px
+  list-style: none
+  padding: 0
+  margin: 0
+
+  li
+    a
+      color: #111
+      font-size: 14px
+      text-decoration: none
+      transition: color 0.25s ease
+
+      &:hover
+        color: #0070f3
+
+      &:visited,
+      &:active,
+      &:focus
+        color: #111
+        text-decoration: none
+
+/* На маленьких экранах превращаем в аккордеон */
+@media (max-width: 768px)
+  .column
+    gap: 0
+  .header
+    display: flex
+    
+
+  .list
+    display: none
+
+  .open
+    display: flex
+  
+ 

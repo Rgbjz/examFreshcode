@@ -1,0 +1,47 @@
+.cardArticle
+    width: 30%
+    min-height: 350px
+    min-width: 280px
+    display: flex
+    flex-direction: column 
+    justify-content: space-between   
+    padding: 25px 25px 4px 25px
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 16px 32px 0px
+    border-radius: 16px
+    line-height: 24px 
+.cardUp
+    display: flex
+    flex-direction: column
+    margin-bottom: 30px
+.cardImg
+    width: 48px
+    height: 48px
+    margin-bottom: 10px
+.cardTitle
+    font-weight: bold
+    font-size: 20px
+    margin-bottom: 10px
+.cardText
+    color: rgb(130, 130, 130)
+    margin-bottom: 48px
+.cardDown
+    width: fit-content
+    color: white
+    text-decoration: none
+    display: flex      
+    background-image: linear-gradient(45deg, rgb(90, 115, 237) 0px, rgb(61, 87, 213) 100%)    
+    border-radius: 8px
+    padding: 13px 20px
+    margin-bottom: 16px 
+    transition: background-image 0.3s ease, transform 0.3s ease   
+    &:hover .arrow
+       transform: translateX(10px)
+    &:hover
+        background-image: linear-gradient(-45deg, rgb(90, 115, 237) 0px, rgb(61, 87, 213) 100%)
+.arrow
+    width: 35px 
+    transition: transform 0.3s ease     
+.arrowWrapper
+    display: flex
+    align-items: center
+    
