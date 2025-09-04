@@ -1,0 +1,118 @@
+.footer
+  background: #fff
+  color: #111
+  padding: 40px 80px
+  display: flex
+  flex-direction: column
+  gap: 40px
+  border-top: 1px solid #eee
+
+.columns
+  display: flex
+  justify-content: space-between
+  align-items: flex-start
+  gap: 40px
+
+  @media (max-width: 768px)
+    flex-direction: column
+    gap: 16px
+
+.mainColumn
+  display: flex
+  flex-direction: column
+  width: 250px
+  min-height: 300px
+  gap: 60px
+
+  @media (max-width: 768px)
+    width: 100%
+    min-height: auto
+    gap: 12px
+.bottom
+  display: flex
+  flex-wrap: wrap
+  justify-content: space-between
+  align-items: center
+  gap: 20px
+  border-top: 1px solid #eee
+  padding-top: 20px
+  font-size: 14px
+  color: #555
+
+.copy
+  a
+    color: #555
+    text-decoration: underline
+
+.rating
+  display: flex
+  align-items: center
+  gap: 2rem
+  padding: 1rem 0  
+  margin-top: 2rem
+
+.trustBox
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  gap: .5rem
+
+.title
+  font-weight: 700
+  font-size: 1.1rem
+
+.stars
+  display: flex
+  gap: 4px
+
+.star
+  width: 24px
+  height: 24px
+  background-color: #00b67a
+  position: relative
+  clip-path: inset(0 0 0 0) 
+
+  &::after
+    content: "★"
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    font-size: 16px
+    color: #fff
+
+.half
+  background: linear-gradient(90deg, #00b67a 50%, #e5e5e5 50%)
+
+.trustText
+  font-size: 0.8rem
+  color: #555
+
+.scoreBox
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  justify-content: center
+  border-left: 1px solid #ddd
+  padding-left: 1rem
+
+.score
+  font-weight: 600
+  font-size: 1rem
+
+.based
+  font-size: 0.8rem
+  color: #666
+
+.socials
+  display: flex
+  gap: 15px
+
+  a
+    font-size: 18px
+    color: #111
+    transition: color 0.3s
+
+    &:hover
+      color: #0070f3
+
