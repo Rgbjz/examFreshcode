@@ -1,8 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import DropDownLink from '../../DropDownLink/DropDownLink';
 import styles from './TrademarksDropdown.module.sass';
-import tradeMarkImg from '../../../../public/staticImages/trademark_filling.svg';
+import CONSTANTS from '../../../constants';
 
 const TrademarksDropdown = () => {
     return (
@@ -10,7 +9,7 @@ const TrademarksDropdown = () => {
             <article className={styles.leftContainer}>
                 <DropDownLink
                     to='/domains/premium'
-                    img={tradeMarkImg}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}trademark_filling.svg`}
                     title='Trademark Filing'
                     description='Protect your brand with trademark services spanning search to filing.'
                 />

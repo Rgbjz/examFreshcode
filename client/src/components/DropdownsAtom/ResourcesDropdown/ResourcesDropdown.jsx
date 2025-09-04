@@ -1,12 +1,5 @@
 import { Link } from 'react-router-dom';
-import arrowSVG from '../../../../public/staticImages/arrow_forward_ios_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
-import bsgImg from '../../../../public/staticImages/bsg.svg';
-import aiImg from '../../../../public/staticImages/bsg.svg';
-import aligmentImg from '../../../../public/staticImages/alignment_tool.svg';
-import radarImg from '../../../../public/staticImages/atom_radar.svg';
-import bookImg from '../../../../public/staticImages/brand_book.svg';
-import startImg from '../../../../public/staticImages/start_up.svg';
-import domainImg from '../../../../public/staticImages/domain_score.svg';
+import CONSTANTS from '../../../constants';
 import DropDownLink from '../../DropDownLink/DropDownLink';
 import styles from './ResourcesDropdown.module.sass';
 
@@ -16,7 +9,7 @@ const ResourcesDropdown = () => {
             <article className={styles.firstContainer}>
                 <DropDownLink
                     to='/domains/premium'
-                    img={bsgImg}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}bsg.svg`}
                     title='Business Name Generator'
                     description='Be inspired by our AI-powered generators! Get 1000s of name ideas in seconds.'
                 />
@@ -47,7 +40,7 @@ const ResourcesDropdown = () => {
                 </div>
                 <DropDownLink
                     to='/domains/premium'
-                    img={aiImg}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}ai.svg`}
                     title='AI Logo Maker'
                     description='Create eye-catching logos in minutes and make your brand memorable.'
                 />
@@ -55,25 +48,25 @@ const ResourcesDropdown = () => {
             <article className={styles.secondContainer}>
                 <DropDownLink
                     to='/domains/premium'
-                    img={aligmentImg}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}alignment_tool.svg`}
                     title='Brand Alignment Tool'
                     description='Make the right naming choice with our AI-powered brand alignment tool.'
                 />
                 <DropDownLink
                     to='/domains/premium'
-                    img={radarImg}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}atom_radar.svg`}
                     title='Atom Radar'
                     description='Exclusive naming and branding research from Atom.com.'
                 />
                 <DropDownLink
                     to='/domains/premium'
-                    img={bookImg}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}brand_book.svg`}
                     title='Build a Brandbook'
                     description='Create a free brand bible in minutes using our AI-assisted builder.'
                 />
                 <DropDownLink
                     to='/domains/premium'
-                    img={startImg}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}start_up.svg`}
                     title='Startup Toolkit'
                     description='Explore apps and services to help your startup thrive.'
                 />
@@ -113,7 +106,7 @@ const ResourcesDropdown = () => {
             <article className={styles.fourthContainer}>
                 <div className={styles.getStartedImgWrapper}>
                     <img
-                        src={domainImg}
+                        src={`${CONSTANTS.STATIC_IMAGES_PATH}domain_score.svg`}
                         alt='Get Started'
                         className={styles.getStartedImg}
                     />
@@ -126,7 +119,7 @@ const ResourcesDropdown = () => {
                         </span>
                         <span>
                             <img
-                                src={arrowSVG}
+                                src={`${CONSTANTS.STATIC_IMAGES_PATH}arrow_forward_ios_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg`}
                                 alt='arrow'
                                 className={styles.arrowImg}
                             />

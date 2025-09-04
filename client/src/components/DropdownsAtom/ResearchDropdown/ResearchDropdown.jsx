@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import DropDownLink from '../../DropDownLink/DropDownLink';
+import CONSTANTS from '../../../constants';
 import styles from './ResearchDropdown.module.sass';
-import audienceImg from '../../../../public/staticImages/audience_research.svg';
 
 const ResearchDropdown = () => {
     return (
@@ -10,7 +10,7 @@ const ResearchDropdown = () => {
             <article className={styles.leftContainer}>
                 <DropDownLink
                     to='/domains/premium'
-                    img={audienceImg}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}audience_research.svg`}
                     title='Audience Research'
                     description='Business decisions are easier with data. Run targeted surveys on just about anything, and get real data fast!'
                 />

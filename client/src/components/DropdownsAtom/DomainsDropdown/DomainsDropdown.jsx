@@ -1,11 +1,7 @@
 import DropDownLink from '../../DropDownLink/DropDownLink';
 import { FaSearch } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import arrowSVG from '../../../../public/staticImages/arrow_forward_ios_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
-import brilliantLaptop from '../../../../public/staticImages/cdm_icon.svg';
-import sapphireLaptop from '../../../../public/staticImages/sapphire_icon.svg';
-import upmLaptop from '../../../../public/staticImages/upm_icon.svg';
-import getStartedImg from '../../../../public/staticImages/get_started.webp';
+import CONSTANTS from '../../../constants';
 import styles from './DomainsDropdown.module.sass';
 
 const DomainsDropdown = () => {
@@ -14,19 +10,19 @@ const DomainsDropdown = () => {
             <div className={styles.leftContainer}>
                 <DropDownLink
                     to='/domains/premium'
-                    img={brilliantLaptop}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}cdm_icon.svg`}
                     title='Premium Domain Marketplace'
                     description='Explore the best premium domain names available for sale.'
                 />
                 <DropDownLink
                     to='/domains/ultra'
-                    img={upmLaptop}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}upm_icon.svg`}
                     title='Ultra Premium Marketplace'
                     description='Explore the best available domain names in existence today.'
                 />
                 <DropDownLink
                     to='/domains/sapphire'
-                    img={sapphireLaptop}
+                    img={`${CONSTANTS.STATIC_IMAGES_PATH}sapphire_icon.svg`}
                     title='Sapphire Marketplace'
                     description='Explore the best single-English-word domains with alternative extensions.'
                 />
@@ -82,7 +78,7 @@ const DomainsDropdown = () => {
             <div className={styles.rightContainer}>
                 <div className={styles.getStartedImgWrapper}>
                     <img
-                        src={getStartedImg}
+                        src={`${CONSTANTS.STATIC_IMAGES_PATH}get_started.webp`}
                         alt='Get Started'
                         className={styles.getStartedImg}
                     />
@@ -94,7 +90,7 @@ const DomainsDropdown = () => {
                         <span>Get Started</span>
                         <span>
                             <img
-                                src={arrowSVG}
+                                src={`${CONSTANTS.STATIC_IMAGES_PATH}arrow_forward_ios_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg`}
                                 alt='arrow'
                                 className={styles.arrowImg}
                             />

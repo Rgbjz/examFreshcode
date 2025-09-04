@@ -197,9 +197,7 @@ class Header extends React.Component {
                                                     textDecoration: 'none',
                                                 }}
                                             >
-                                                <span className={styles.btn}>
-                                                    HOW IT WORKS
-                                                </span>
+                                                HOW IT WORKS
                                             </Link>
                                         </li>
                                         <li>

@@ -1,17 +1,36 @@
-import React from 'react';
 import styles from './AtomHeader.module.sass';
-import Logo from '../../../public/staticImages/atom-logo.webp';
-import { FaSearch, FaUser, FaPhone, FaHeart } from 'react-icons/fa';
+import { useState } from 'react';
+import {
+    FaSearch,
+    FaUser,
+    FaPhone,
+    FaHeart,
+    FaBars,
+    FaTimes,
+} from 'react-icons/fa';
 import AtomNav from '../AtomNav/AtomNav';
+import CONSTANTS from '../../constants';
+import { Link } from 'react-router-dom';
 
 const AtomHeader = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
         <header className={styles.header}>
-            <div className={styles.left}>
-                <img src={Logo} alt='Atom' className={styles.logo} />
-            </div>
+            <Link to={'/home'} className={styles.left}>
+                <img
+                    src={`${CONSTANTS.STATIC_IMAGES_PATH}atom-logo.webp`}
+                    alt='Atom'
+                    className={styles.logo}
+                />
+            </Link>
 
-            <AtomNav />
+            <div
+                className={`${styles.navWrapper} ${
+                    isMenuOpen ? styles.open : ''
+                }`}
+            >
+                <AtomNav />
+            </div>
 
             <div className={styles.right}>
                 <button className={styles.icon}>
@@ -27,6 +46,12 @@ const AtomHeader = () => {
                     <FaHeart />
                 </button>
             </div>
+            <button
+                className={styles.burger}
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+                {isMenuOpen ? <FaTimes /> : <FaBars />}
+            </button>
         </header>
     );
 };

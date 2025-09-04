@@ -1,7 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import arrowSVG from '../../../../public/staticImages/arrow_forward_ios_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
-import agencyStyle from '../../../../public/staticImages/agency_style.webp';
+import CONSTANTS from '../../../constants';
 import DropDownLink from '../../DropDownLink/DropDownLink';
 import styles from './NamingDropdown.module.sass';
 
@@ -87,7 +85,7 @@ const NamingDropdown = () => {
             <article className={styles.rightContainer}>
                 <div className={styles.getStartedImgWrapper}>
                     <img
-                        src={agencyStyle}
+                        src={`${CONSTANTS.STATIC_IMAGES_PATH}agency_style.webp`}
                         alt='Get Started'
                         className={styles.getStartedImg}
                     />
@@ -100,7 +98,7 @@ const NamingDropdown = () => {
                         </span>
                         <span>
                             <img
-                                src={arrowSVG}
+                                src={`${CONSTANTS.STATIC_IMAGES_PATH}arrow_forward_ios_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg`}
                                 alt='arrow'
                                 className={styles.arrowImg}
                             />

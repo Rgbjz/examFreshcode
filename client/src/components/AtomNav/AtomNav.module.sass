@@ -1,12 +1,80 @@
 .center
   display: flex
+  justify-content: center
   gap: 30px
-  position: relative 
-  font-size: 1.2rem  
+  position: relative
+  font-size: 1.2rem
+
+  @media screen and (max-width: 1180px)
+    flex-direction: column
+    gap: 10px
+    padding: 15px
+
+a
+  color: #030303
+  text-decoration: none
+  transition: color 0.2s ease
+  &:hover
+    color: #0955e4
+
+.mobileSearch
+  display: none
+  @media screen and (max-width: 1180px)
+    display: block
+    margin-bottom: 10px
+    input
+      width: 90%
+      padding: 10px
+      border: 1px solid #ccc
+      border-radius: 6px
+      font-size: 1rem
+
+.navWrapper
+  position: relative
+
+.dropdownWrapper
+  position: relative
+
+.desktopDropdown
+  position: absolute
+  top: 100%
+  left: 0
+  width: 100%
+  display: flex
+  justify-content: center
+  background: white
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1)
+  z-index: 10
+
+.sectionButton
+  display: flex
+  justify-content: space-between
+  align-items: center
+  width: 100%
+  background: none
+  border: none
+  font: inherit
+  padding: 8px 0
+  cursor: pointer
 
   a
-    color: #030303    
-    text-decoration: none
-    transition: color 0.2s ease
-    &:hover
-      color: #0955e4
+    flex: 1
+    text-align: left
+
+.arrow
+  transition: transform 0.3s ease
+
+.sectionButton.open .arrow
+  transform: rotate(180deg)
+
+.dropdownContent
+  max-height: 0
+  opacity: 0
+  overflow: hidden
+  transition: max-height 0.3s ease, opacity 0.3s ease
+
+.show
+  max-height: 80vh
+  opacity: 1
+  overflow-y: auto
+  padding-right: 10px
