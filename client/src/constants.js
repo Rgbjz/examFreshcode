@@ -87,4 +87,26 @@ export default {
             items: ['Terms of Service', 'Privacy Policy', 'Cookie Policy'],
         },
     ],
+    EVENT_TYPES: [
+        {
+            value: 'new_year',
+            label: 'New Year',
+            style: 'newYear',
+        },
+        {
+            value: 'valentines',
+            label: "Valentine's Day",
+            style: 'valentines',
+        },
+        {
+            value: 'birthday',
+            label: 'Birthday',
+            style: 'birthday',
+        },
+        {
+            value: 'custom',
+            label: 'Custom Event',
+            style: 'default',
+        },
+    ],
 };

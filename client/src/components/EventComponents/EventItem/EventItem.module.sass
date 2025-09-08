@@ -1,0 +1,84 @@
+.item
+  display: flex
+  justify-content: space-between
+  align-items: center
+  background: #f0f4f8
+  color: #ffffff
+  border-radius: 6px
+  padding: 0.5rem 1rem
+  margin-bottom: 0.5rem
+  height: 40px
+  overflow: hidden
+  position: relative
+
+.progress
+  position: absolute
+  top: 0
+  left: 0
+  height: 100%
+  z-index: 0
+  border-radius: 6px
+  transition: width 0.5s linear  
+  background-repeat: repeat
+  background-size: 700px 400px
+  background-position: top left
+
+
+.newYear  
+  background-image: url('/public/staticImages/tile_background.png')
+
+
+.valentines
+  background-image: url('/public/staticImages/valentines_tile_background.png')
+
+
+.birthday
+  background-image: url('/public/staticImages/birthday_tile_background.png')
+
+
+.default  
+  background-image: url('/public/staticImages/default_tile_background.png')
+  
+
+.content
+  display: flex
+  justify-content: space-between
+  align-items: center
+  width: 100%
+  z-index: 1
+
+.name
+  font-weight: 600
+  color: #ffffff
+
+.timeWrapper
+  display: flex
+  align-items: center
+  gap: 8px
+
+.time
+  font-size: 0.9rem
+  color: #000000
+
+.badge
+  background: #f80000cb
+  color: white
+  padding: 0.1rem 0.55rem
+  border-radius: 50%
+  font-weight: bold
+
+.delete
+  background: none
+  border: none
+  color: #000
+  font-size: 1rem
+  cursor: pointer
+  padding: 0
+  line-height: 1
+  &:hover
+    color: red
+
+@media (max-width: 600px)
+  .item
+    width: 90%
+    font-size: 0.9rem

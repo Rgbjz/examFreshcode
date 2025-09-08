@@ -76,6 +76,30 @@ class Header extends React.Component {
                                 </Link>
                             </li>
                             <li>
+                                <Link
+                                    to='/myEvents'
+                                    className={styles.myEventWrapper}
+                                >
+                                    <span>My events</span>
+                                    {(() => {
+                                        const events = JSON.parse(
+                                            localStorage.getItem('events') ||
+                                                '[]'
+                                        );
+                                        const finishedCount = events.filter(
+                                            e =>
+                                                new Date(e.dateTime) <=
+                                                new Date()
+                                        ).length;
+                                        return finishedCount > 0 ? (
+                                            <div className={styles.eventCount}>
+                                                {finishedCount}
+                                            </div>
+                                        ) : null;
+                                    })()}
+                                </Link>
+                            </li>
+                            <li>
                                 <span onClick={this.logOut}>Logout</span>
                             </li>
                         </ul>
