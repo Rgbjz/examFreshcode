@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import styles from './DropDownLink.module.sass';
-import arrowSVG from '../../../public/staticImages/arrow_forward_ios_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
+import CONSTANTS from '../../constants';
 
 const DropDownLink = ({ to, img, title, description }) => (
     <div className={styles.linkContainer}>
@@ -10,7 +10,7 @@ const DropDownLink = ({ to, img, title, description }) => (
                 <span className={styles.bold}>{title}</span>
                 <span>
                     <img
-                        src={arrowSVG}
+                        src={`${CONSTANTS.STATIC_IMAGES_PATH}arrow_forward_ios_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg`}
                         alt='arrow'
                         className={styles.arrowImg}
                     />
