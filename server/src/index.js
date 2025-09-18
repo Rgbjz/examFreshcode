@@ -3,6 +3,7 @@ require('dotenv').config();
 const app = require('./app');
 const controller = require('./socketInit');
 const { logError } = require('./utils/logger');
+const initLogArchiverCron = require('./utils/logArchiverCron');
 
 const PORT = process.env.PORT || 3000;
 
@@ -15,6 +16,8 @@ process.on('unhandledRejection', async reason => {
     console.error('unhandledRejection', reason);
     await logError(reason, 500, { fatal: true, source: 'unhandledRejection' });
 });
+
+initLogArchiverCron();
 
 const server = http.createServer(app);
 server.listen(PORT, () =>

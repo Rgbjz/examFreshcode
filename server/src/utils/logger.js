@@ -11,7 +11,6 @@ const ensureLogDir = () => {
 
 const parseStack = stack => {
     if (!stack) return {};
-    // split lines and trim
     const lines = stack
         .split('\n')
         .map(l => l.trim())
