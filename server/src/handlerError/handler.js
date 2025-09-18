@@ -1,4 +1,6 @@
-module.exports = (err, req, res, next) => {
+const { logError } = require('../utils/logger');
+
+module.exports = async (err, req, res, next) => {
     console.log(err);
     if (
         err.message ===
@@ -9,6 +11,12 @@ module.exports = (err, req, res, next) => {
         err.message = 'Not Enough money';
         err.code = 406;
     }
+    await logError(err, err.code, {
+        url: req.originalUrl,
+        method: req.method,
+        body: req.body,
+    });
+
     if (!err.message || !err.code) {
         res.status(500).send('Server Error');
     } else {
