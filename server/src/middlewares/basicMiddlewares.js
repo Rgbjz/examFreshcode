@@ -91,16 +91,25 @@ module.exports.canSendOffer = async (req, res, next) => {
 
 module.exports.onlyForCustomerWhoCreateContest = async (req, res, next) => {
     try {
+        const { userId, role } = req.tokenData;
+        const { contestId } = req.body;
+
+        if (role === CONSTANTS.MODERATOR) {
+            return next();
+        }
+
         const result = await bd.Contests.findOne({
             where: {
-                userId: req.tokenData.userId,
-                id: req.body.contestId,
+                userId,
+                id: contestId,
                 status: CONSTANTS.CONTEST_STATUS_ACTIVE,
             },
         });
+
         if (!result) {
             return next(new RightsError());
         }
+
         next();
     } catch (e) {
         next(new ServerError());
@@ -125,4 +134,13 @@ module.exports.canUpdateContest = async (req, res, next) => {
     } catch (e) {
         next(new ServerError());
     }
+};
+
+module.exports.onlyForModerator = (req, res, next) => {
+    if (req.tokenData.role !== 'moderator') {
+        return res
+            .status(403)
+            .send({ error: 'Only moderator can access this route' });
+    }
+    next();
 };
