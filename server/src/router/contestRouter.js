@@ -56,19 +56,4 @@ contestRouter.get(
     contestController.downloadFile
 );
 
-contestRouter.post(
-    '/setNewOffer',
-    checkToken.checkToken,
-    upload.uploadLogoFiles,
-    basicMiddlewares.canSendOffer,
-    contestController.setNewOffer
-);
-
-contestRouter.patch(
-    '/setOfferStatus',
-    checkToken.checkToken,
-    basicMiddlewares.onlyForCustomerWhoCreateContest,
-    contestController.setOfferStatus
-);
-
 module.exports = contestRouter;
