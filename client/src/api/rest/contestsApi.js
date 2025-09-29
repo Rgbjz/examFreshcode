@@ -1,9 +1,8 @@
 import http from '../interceptor';
 import queryString from 'query-string';
 
-export const setNewOffer = data => http.post('contests/setNewOffer', data);
-export const setOfferStatus = data =>
-    http.patch('contests/setOfferStatus', data);
+export const setNewOffer = data => http.post('offers/setNewOffer', data);
+export const setOfferStatus = data => http.patch('offers/setOfferStatus', data);
 export const downloadContestFile = data =>
     http.get(`contests/downloadFile/${data.fileName}`);
 export const getCustomersContests = data =>

@@ -22,6 +22,8 @@ import OnlyNotAuthorizedUserRoute from './components/Routes/OnlyNotAuthorizedUse
 import PrivateRoute from './components/Routes/PrivateRoute/PrivateRoute';
 import HowItWorks from './pages/HowItWorks/HowItWorks';
 import EventPage from './pages/EventPage/EventPage';
+import WithModeratorRoute from './components/Routes/WithModeratorRoute/WithModeratorRoute';
+import ModeratorPage from './pages/ModeratorPage/ModeratorPage';
 
 class App extends Component {
     render () {
@@ -91,6 +93,12 @@ class App extends Component {
                             />
                             <Route path='/account' element={<UserProfile />} />
                             <Route path='/myEvents' element={<EventPage />} />
+                        </Route>
+                        <Route element={<WithModeratorRoute />}>
+                            <Route
+                                path='/moderator'
+                                element={<ModeratorPage />}
+                            />
                         </Route>
                         <Route path='*' element={<NotFound />} />
                     </Route>
