@@ -27,9 +27,9 @@ const initialState = {
     isRenameCatalog: false,
     isShowChatsInCatalog: false,
     catalogCreationMode: CONSTANTS.ADD_CHAT_TO_OLD_CATALOG,
+    selectedChatId: null,
 };
 
-//---------- getPreviewChat
 export const getPreviewChat = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/getPreviewChat`,
     thunk: async () => {
@@ -50,10 +50,9 @@ const getPreviewChatExtraReducers = createExtraReducers({
     },
 });
 
-//---------- getDialogMessages
 export const getDialogMessages = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/getDialogMessages`,
-    thunk: async (payload) => {
+    thunk: async payload => {
         const { data } = await chatApi.getDialog(payload);
         return data;
     },
@@ -62,20 +61,44 @@ export const getDialogMessages = decorateAsyncThunk({
 const getDialogMessagesExtraReducers = createExtraReducers({
     thunk: getDialogMessages,
     fulfilledReducer: (state, { payload }) => {
-        state.messages = payload.messages;
-        state.interlocutor = payload.interlocutor;
+        state.messages = payload.messages || [];
+        state.interlocutor = payload.interlocutor || null;
+
+        const oldFavList = state.chatData?.favoriteList || [];
+        const oldBlackList = state.chatData?.blackList || [];
+
+        state.chatData = {
+            id: payload.conversationId,
+            participants: [payload.selfId, payload.interlocutor?.id]
+                .filter(Boolean)
+                .sort((a, b) => a - b),
+            favoriteList: payload.favoriteList?.length
+                ? payload.favoriteList
+                : oldFavList.length
+                ? oldFavList
+                : [false, false],
+            blackList: payload.blackList?.length
+                ? payload.blackList
+                : oldBlackList.length
+                ? oldBlackList
+                : [false, false],
+        };
+
+        state.isShow = true;
+        state.isExpanded = true;
+        state.error = null;
     },
-    rejectedReducer: (state, { payload }) => {
+    rejectedReducer: state => {
         state.messages = [];
         state.interlocutor = null;
-        state.error = payload;
+        state.chatData = null;
+        state.error = null;
     },
 });
 
-//---------- sendMessage
 export const sendMessage = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/sendMessage`,
-    thunk: async (payload) => {
+    thunk: async payload => {
         const { data } = await chatApi.newMessage(payload);
         return data;
     },
@@ -84,38 +107,64 @@ export const sendMessage = decorateAsyncThunk({
 const sendMessageExtraReducers = createExtraReducers({
     thunk: sendMessage,
     fulfilledReducer: (state, { payload }) => {
-        const { messagesPreview } = state;
-        let isNew = true;
-        messagesPreview.forEach((preview) => {
-            if (isEqual(preview.participants, payload.message.participants)) {
-                preview.text = payload.message.body;
-                preview.sender = payload.message.sender;
-                preview.createAt = payload.message.createdAt;
-                isNew = false;
-            }
-        });
-        if (isNew) {
-            messagesPreview.push(payload.preview);
-        }
-        const chatData = {
-            _id: payload.preview._id,
-            participants: payload.preview.participants,
-            favoriteList: payload.preview.favoriteList,
-            blackList: payload.preview.blackList,
+        const message = payload?.message;
+        const preview = payload?.preview;
+        if (!message) return;
+
+        const chatId = preview?.id || message.id;
+        const participants = (
+            preview?.participants ||
+            message.participants ||
+            []
+        ).map(Number);
+        const senderId = Number(message.sender);
+        const interlocutorId = participants.find(id => id !== senderId);
+        const interlocutor =
+            preview?.interlocutor ||
+            (interlocutorId
+                ? { id: interlocutorId, firstName: 'User', avatar: 'anon.png' }
+                : null);
+
+        const oldPreview = state.messagesPreview.find(p => p.id === chatId);
+        const oldFavList = oldPreview?.favoriteList || [false, false];
+        const oldBlackList = oldPreview?.blackList || [false, false];
+
+        state.messages.push(message);
+
+        const idx = state.messagesPreview.findIndex(p => p.id === chatId);
+        const updatedPreview = {
+            ...(idx !== -1 ? state.messagesPreview[idx] : preview || {}),
+            id: chatId,
+            text: message.body,
+            sender: message.sender,
+            createAt: message.createdAt,
+            interlocutor,
+            participants,
+            favoriteList: preview?.favoriteList || oldFavList,
+            blackList: preview?.blackList || oldBlackList,
         };
-        state.chatData = { ...state.chatData, ...chatData };
-        state.messagesPreview = messagesPreview;
-        state.messages = [...state.messages, payload.message];
-    },
-    rejectedReducer: (state, { payload }) => {
-        state.error = payload;
+
+        if (idx !== -1) state.messagesPreview[idx] = updatedPreview;
+        else state.messagesPreview.push(updatedPreview);
+
+        const oldChatData = state.chatData || {};
+        state.chatData = {
+            ...oldChatData,
+            id: chatId,
+            participants,
+            favoriteList: oldChatData.favoriteList || oldFavList,
+            blackList: oldChatData.blackList || oldBlackList,
+        };
+
+        state.messagesPreview = Array.from(
+            new Map(state.messagesPreview.map(p => [p.id, p])).values()
+        );
     },
 });
 
-//---------- changeChatFavorite
 export const changeChatFavorite = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/changeChatFavorite`,
-    thunk: async (payload) => {
+    thunk: async payload => {
         const { data } = await chatApi.changeChatFavorite(payload);
         return data;
     },
@@ -124,48 +173,49 @@ export const changeChatFavorite = decorateAsyncThunk({
 const changeChatFavoriteExtraReducers = createExtraReducers({
     thunk: changeChatFavorite,
     fulfilledReducer: (state, { payload }) => {
-        const { messagesPreview } = state;
-        messagesPreview.forEach((preview) => {
-            if (isEqual(preview.participants, payload.participants))
-                preview.favoriteList = payload.favoriteList;
-        });
-        state.chatData = payload;
-        state.messagesPreview = messagesPreview;
+        if (state.chatData && payload.favoriteList?.length) {
+            state.chatData.favoriteList = [...payload.favoriteList];
+        }
+
+        state.messagesPreview = state.messagesPreview.map(preview =>
+            isEqual(preview.participants, payload.participants)
+                ? { ...preview, favoriteList: payload.favoriteList }
+                : preview
+        );
     },
     rejectedReducer: (state, { payload }) => {
         state.error = payload;
     },
 });
 
-//---------- changeChatBlock
 export const changeChatBlock = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/changeChatBlock`,
-    thunk: async (payload) => {
+    thunk: async payload => {
         const { data } = await chatApi.changeChatBlock(payload);
         return data;
     },
 });
-
 const changeChatBlockExtraReducers = createExtraReducers({
     thunk: changeChatBlock,
     fulfilledReducer: (state, { payload }) => {
-        const { messagesPreview } = state;
-        messagesPreview.forEach((preview) => {
-            if (isEqual(preview.participants, payload.participants))
-                preview.blackList = payload.blackList;
-        });
-        state.chatData = payload;
-        state.messagesPreview = messagesPreview;
+        if (state.chatData && payload.blackList?.length) {
+            state.chatData.blackList = [...payload.blackList];
+        }
+
+        state.messagesPreview = state.messagesPreview.map(preview =>
+            isEqual(preview.participants, payload.participants)
+                ? { ...preview, blackList: payload.blackList }
+                : preview
+        );
     },
     rejectedReducer: (state, { payload }) => {
         state.error = payload;
     },
 });
 
-//---------- getCatalogList
 export const getCatalogList = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/getCatalogList`,
-    thunk: async (payload) => {
+    thunk: async payload => {
         const { data } = await chatApi.getCatalogList(payload);
         return data;
     },
@@ -180,11 +230,10 @@ const getCatalogListExtraReducers = createExtraReducers({
     rejectedReducer,
 });
 
-//---------- addChatToCatalog
 export const addChatToCatalog = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/addChatToCatalog`,
-    thunk: async (payload) => {
-        const { data } = await chatApi.addChatToCatalog(payload);
+    thunk: async payload => {
+        const { data } = await chatApi.addNewChatToCatalog(payload);
         return data;
     },
 });
@@ -192,15 +241,28 @@ export const addChatToCatalog = decorateAsyncThunk({
 const addChatToCatalogExtraReducers = createExtraReducers({
     thunk: addChatToCatalog,
     fulfilledReducer: (state, { payload }) => {
-        const { catalogList } = state;
-        for (let i = 0; i < catalogList.length; i++) {
-            if (catalogList[i]._id === payload._id) {
-                catalogList[i].chats = payload.chats;
-                break;
-            }
+        const updatedChats = Array.isArray(payload.chats) ? payload.chats : [];
+
+        state.catalogList = state.catalogList.map(c =>
+            c.id === payload.id
+                ? {
+                      ...c,
+                      chats: updatedChats,
+                      catalogName: payload.catalogName,
+                  }
+                : c
+        );
+
+        if (state.currentCatalog && state.currentCatalog.id === payload.id) {
+            state.currentCatalog = {
+                ...state.currentCatalog,
+                chats: updatedChats,
+                catalogName: payload.catalogName,
+            };
         }
+
         state.isShowCatalogCreation = false;
-        state.catalogList = [...catalogList];
+        state.error = null;
     },
     rejectedReducer: (state, { payload }) => {
         state.error = payload;
@@ -208,10 +270,9 @@ const addChatToCatalogExtraReducers = createExtraReducers({
     },
 });
 
-//---------- createCatalog
 export const createCatalog = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/createCatalog`,
-    thunk: async (payload) => {
+    thunk: async payload => {
         const { data } = await chatApi.createCatalog(payload);
         return data;
     },
@@ -229,34 +290,29 @@ const createCatalogExtraReducers = createExtraReducers({
     },
 });
 
-//---------- deleteCatalog
 export const deleteCatalog = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/deleteCatalog`,
-    thunk: async (payload) => {
-        await chatApi.deleteCatalog(payload);
-        return payload;
+    thunk: async catalogId => {
+        await chatApi.deleteCatalog(catalogId);
+        return catalogId; // возвращаем просто ID
     },
 });
 
 const deleteCatalogExtraReducers = createExtraReducers({
     thunk: deleteCatalog,
     fulfilledReducer: (state, { payload }) => {
-        const { catalogList } = state;
-        const newCatalogList = remove(
-            catalogList,
-            (catalog) => payload.catalogId !== catalog._id
+        state.catalogList = state.catalogList.filter(
+            catalog => catalog.id !== payload // т.к. payload — просто id
         );
-        state.catalogList = [...newCatalogList];
     },
     rejectedReducer: (state, { payload }) => {
         state.error = payload;
     },
 });
 
-//---------- removeChatFromCatalog
 export const removeChatFromCatalog = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/removeChatFromCatalog`,
-    thunk: async (payload) => {
+    thunk: async payload => {
         const { data } = await chatApi.removeChatFromCatalog(payload);
         return data;
     },
@@ -265,25 +321,36 @@ export const removeChatFromCatalog = decorateAsyncThunk({
 const removeChatFromCatalogExtraReducers = createExtraReducers({
     thunk: removeChatFromCatalog,
     fulfilledReducer: (state, { payload }) => {
-        const { catalogList } = state;
-        for (let i = 0; i < catalogList.length; i++) {
-            if (catalogList[i]._id === payload._id) {
-                catalogList[i].chats = payload.chats;
-                break;
-            }
+        const { id, conversations } = payload;
+
+        const chats =
+            conversations?.map(conv => ({
+                id: conv.id,
+                createdAt: conv.createdAt,
+                updatedAt: conv.updatedAt,
+            })) || [];
+
+        state.catalogList = state.catalogList.map(catalog =>
+            catalog.id === id ? { ...catalog, chats } : catalog
+        );
+
+        if (state.currentCatalog && state.currentCatalog.id === id) {
+            state.currentCatalog = {
+                ...state.currentCatalog,
+                chats,
+            };
         }
-        state.currentCatalog = payload;
-        state.catalogList = [...catalogList];
+
+        state.error = null;
     },
     rejectedReducer: (state, { payload }) => {
         state.error = payload;
     },
 });
 
-//---------- changeCatalogName
 export const changeCatalogName = decorateAsyncThunk({
     key: `${CHAT_SLICE_NAME}/changeCatalogName`,
-    thunk: async (payload) => {
+    thunk: async payload => {
         const { data } = await chatApi.changeCatalogName(payload);
         return data;
     },
@@ -292,55 +359,112 @@ export const changeCatalogName = decorateAsyncThunk({
 const changeCatalogNameExtraReducers = createExtraReducers({
     thunk: changeCatalogName,
     fulfilledReducer: (state, { payload }) => {
-        const { catalogList } = state;
-        for (let i = 0; i < catalogList.length; i++) {
-            if (catalogList[i]._id === payload._id) {
-                catalogList[i].catalogName = payload.catalogName;
-                break;
-            }
+        const { catalogList, currentCatalog } = state;
+
+        const updatedCatalogList = catalogList.map(c =>
+            c.id === payload.id ? { ...c, catalogName: payload.catalogName } : c
+        );
+        state.catalogList = updatedCatalogList;
+
+        if (currentCatalog?.id === payload.id) {
+            state.currentCatalog = {
+                ...currentCatalog,
+                catalogName: payload.catalogName,
+            };
         }
-        state.catalogList = [...catalogList];
-        state.currentCatalog = payload;
+
         state.isRenameCatalog = false;
     },
-    rejectedReducer: (state) => {
+    rejectedReducer: state => {
         state.isRenameCatalog = false;
     },
 });
+
+export const backToDialogList = () => async (dispatch, getState) => {
+    try {
+        dispatch(chatSlice.actions._backToDialogList());
+
+        const preview = await dispatch(getPreviewChat()).unwrap();
+
+        dispatch(chatSlice.actions.setMessagesPreview(preview));
+    } catch (err) {
+        dispatch(chatSlice.actions._backToDialogList());
+    }
+};
+
 //-------------------------------------------------------
 
 const reducers = {
     changeBlockStatusInStore: (state, { payload }) => {
-        const { messagesPreview } = state;
-        messagesPreview.forEach((preview) => {
-            if (isEqual(preview.participants, payload.participants))
-                preview.blackList = payload.blackList;
-        });
-        state.chatData = payload;
-        state.messagesPreview = messagesPreview;
+        if (!state.chatData) return;
+        state.chatData = { ...payload };
     },
 
     addMessage: (state, { payload }) => {
-        const { message, preview } = payload;
-        const { messagesPreview } = state;
-        let isNew = true;
-        messagesPreview.forEach((preview) => {
-            if (isEqual(preview.participants, message.participants)) {
-                preview.text = message.body;
-                preview.sender = message.sender;
-                preview.createAt = message.createdAt;
-                isNew = false;
-            }
-        });
-        if (isNew) {
-            messagesPreview.push(preview);
-        }
-        state.messagesPreview = messagesPreview;
-        state.messages = [...state.messages, payload.message];
+        const message = payload?.message;
+        const preview = payload?.preview;
+        if (!message) return;
+
+        const chatId = preview?.id || message.id;
+        const participants = (
+            preview?.participants ||
+            message.participants ||
+            []
+        ).map(Number);
+        const senderId = Number(message.sender);
+        const interlocutorId = participants.find(id => id !== senderId);
+        const interlocutor =
+            preview?.interlocutor ||
+            (interlocutorId
+                ? { id: interlocutorId, firstName: 'User', avatar: 'anon.png' }
+                : null);
+
+        const oldPreview = state.messagesPreview.find(p => p.id === chatId);
+        const oldFavList = oldPreview?.favoriteList || [false, false];
+        const oldBlackList = oldPreview?.blackList || [false, false];
+        
+        state.messages.push(message);
+        
+        const idx = state.messagesPreview.findIndex(p => p.id === chatId);
+        const updatedPreview = {
+            ...(idx !== -1 ? state.messagesPreview[idx] : preview || {}),
+            id: chatId,
+            text: message.body,
+            sender: message.sender,
+            createAt: message.createdAt,
+            interlocutor,
+            participants,
+            favoriteList: preview?.favoriteList || oldFavList,
+            blackList: preview?.blackList || oldBlackList,
+        };
+
+        if (idx !== -1) state.messagesPreview[idx] = updatedPreview;
+        else state.messagesPreview.push(updatedPreview);
+        
+        const oldChatData = state.chatData || {};
+        state.chatData = {
+            ...oldChatData,
+            id: chatId,
+            participants,
+            favoriteList: oldChatData.favoriteList || [false, false],
+            blackList: oldChatData.blackList || [false, false],
+        };
+        
+        state.messagesPreview = Array.from(
+            new Map(state.messagesPreview.map(p => [p.id, p])).values()
+        );
     },
 
-    backToDialogList: (state) => {
+    _backToDialogList: state => {
         state.isExpanded = false;
+        state.chatData = null;
+        state.messages = [];
+        state.interlocutor = null;
+        state.selectedChatId = null;
+    },
+
+    setMessagesPreview: (state, { payload }) => {
+        state.messagesPreview = payload;
     },
 
     goToExpandedDialog: (state, { payload }) => {
@@ -351,11 +475,11 @@ const reducers = {
         state.messages = [];
     },
 
-    clearMessageList: (state) => {
+    clearMessageList: state => {
         state.messages = [];
     },
 
-    changeChatShow: (state) => {
+    changeChatShow: state => {
         state.isShowCatalogCreation = false;
         state.isShow = !state.isShow;
     },
@@ -379,16 +503,19 @@ const reducers = {
         state.isShowCatalogCreation = !state.isShowCatalogCreation;
     },
 
-    changeRenameCatalogMode: (state) => {
+    changeRenameCatalogMode: state => {
         state.isRenameCatalog = !state.isRenameCatalog;
     },
 
-    clearChatError: (state) => {
+    clearChatError: state => {
         state.error = null;
+    },
+    setAddChatId: (state, { payload }) => {
+        state.selectedChatId = payload; 
     },
 };
 
-const extraReducers = (builder) => {
+const extraReducers = builder => {
     getPreviewChatExtraReducers(builder);
     getDialogMessagesExtraReducers(builder);
     sendMessageExtraReducers(builder);
@@ -414,7 +541,6 @@ const { actions, reducer } = chatSlice;
 export const {
     changeBlockStatusInStore,
     addMessage,
-    backToDialogList,
     goToExpandedDialog,
     clearMessageList,
     changeChatShow,
@@ -424,6 +550,8 @@ export const {
     changeShowAddChatToCatalogMenu,
     changeRenameCatalogMode,
     clearChatError,
+    setMessagesPreview,
+    setAddChatId,
 } = actions;
 
 export default reducer;

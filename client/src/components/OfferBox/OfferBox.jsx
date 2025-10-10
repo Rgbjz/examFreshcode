@@ -27,7 +27,7 @@ const OfferBox = props => {
         return (
             messagesPreview.find(msg =>
                 isEqual(
-                    msg.participants.sort((a, b) => a - b),
+                    [...msg.participants].sort((a, b) => a - b),
                     participants
                 )
             ) || null

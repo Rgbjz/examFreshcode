@@ -7,43 +7,42 @@ import {
     deleteCatalog,
 } from '../../../../store/slices/chatSlice';
 
-const CatalogList = (props) => {
+const CatalogList = ({ catalogList, changeShowModeCatalog, deleteCatalog }) => {
+    if (!catalogList || !catalogList.length) {
+        return <span className={styles.notFound}>No catalogs found</span>;
+    }
+
     const goToCatalog = (event, catalog) => {
-        props.changeShowModeCatalog(catalog);
         event.stopPropagation();
+        const normalizedCatalog = {
+            ...catalog,
+            chats: catalog.chats || [],
+        };
+        changeShowModeCatalog(normalizedCatalog);
     };
 
-    const deleteCatalog = (event, catalogId) => {
-        props.deleteCatalog({ catalogId });
+    const handleDeleteCatalog = (event, catalogId) => {
         event.stopPropagation();
+        deleteCatalog(catalogId);
     };
 
-    const getListCatalog = () => {
-        const { catalogList } = props;
-        const elementList = [];
-        catalogList.forEach((catalog) => {
-            elementList.push(
+    return (
+        <div className={styles.listContainer}>
+            {catalogList.map(catalog => (
                 <Catalog
+                    key={catalog.id}
                     catalog={catalog}
-                    key={catalog._id}
-                    deleteCatalog={deleteCatalog}
-                    goToCatalog={goToCatalog}
+                    goToCatalog={e => goToCatalog(e, catalog)}
+                    deleteCatalog={e => handleDeleteCatalog(e, catalog.id)}
                 />
-            );
-        });
-        return elementList.length ? (
-            elementList
-        ) : (
-            <span className={styles.notFound}>Not found</span>
-        );
-    };
-
-    return <div className={styles.listContainer}>{getListCatalog()}</div>;
+            ))}
+        </div>
+    );
 };
 
-const mapDispatchToProps = (dispatch) => ({
-    changeShowModeCatalog: (data) => dispatch(changeShowModeCatalog(data)),
-    deleteCatalog: (data) => dispatch(deleteCatalog(data)),
+const mapDispatchToProps = dispatch => ({
+    changeShowModeCatalog: data => dispatch(changeShowModeCatalog(data)),
+    deleteCatalog: id => dispatch(deleteCatalog(id)),
 });
 
 export default connect(null, mapDispatchToProps)(CatalogList);

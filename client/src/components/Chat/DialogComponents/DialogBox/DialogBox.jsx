@@ -1,9 +1,16 @@
 import React from 'react';
 import classNames from 'classnames';
-import styles from './DialogBox.module.sass';
+import { useDispatch } from 'react-redux';
+import {
+    setAddChatId,
+    getDialogMessages,
+} from '../../../../store/slices/chatSlice';
 import CONSTANTS from '../../../../constants';
+import styles from './DialogBox.module.sass';
 
-const DialogBox = (props) => {
+const DialogBox = props => {
+    const dispatch = useDispatch();
+
     const {
         chatPreview,
         userId,
@@ -15,49 +22,69 @@ const DialogBox = (props) => {
         chatMode,
         interlocutor,
     } = props;
-    const { favoriteList, participants, blackList, _id, text, createAt } =
-        chatPreview;
+
+    if (!chatPreview) return null;
+
+    const {
+        favoriteList = [],
+        participants = [],
+        blackList = [],
+        id,
+        text,
+        createAt,
+    } = chatPreview;
+    if (participants.length === 1 && participants[0] === userId) return null;
+
     const isFavorite = favoriteList[participants.indexOf(userId)];
     const isBlocked = blackList[participants.indexOf(userId)];
+
+    const otherId = participants.find(p => p !== userId) || null;
+
+    const safeInterlocutor =
+        interlocutor ||
+        (otherId
+            ? { id: otherId, firstName: 'User', avatar: 'anon.png' }
+            : null);
+
+    const avatarSrc =
+        safeInterlocutor?.avatar === 'anon.png'
+            ? CONSTANTS.ANONYM_IMAGE_PATH
+            : safeInterlocutor?.avatar
+            ? `${CONSTANTS.publicURL}${safeInterlocutor.avatar}`
+            : CONSTANTS.ANONYM_IMAGE_PATH;
+
+    const firstName = safeInterlocutor?.firstName || 'User';
+
+    const handleClick = () => {
+        if (!otherId) return;
+
+        dispatch(setAddChatId(id));
+
+        if (!safeInterlocutor.id) {
+            dispatch(getDialogMessages({ interlocutorId: otherId }));
+            return;
+        }
+
+        goToExpandedDialog({
+            interlocutor: safeInterlocutor,
+            conversationData: { participants, id, blackList, favoriteList },
+        });
+    };
+
     return (
-        <div
-            className={styles.previewChatBox}
-            onClick={() =>
-                goToExpandedDialog({
-                    interlocutor,
-                    conversationData: {
-                        participants,
-                        _id,
-                        blackList,
-                        favoriteList,
-                    },
-                })
-            }
-        >
-            <img
-                src={
-                    interlocutor.avatar === 'anon.png'
-                        ? CONSTANTS.ANONYM_IMAGE_PATH
-                        : `${CONSTANTS.publicURL}${interlocutor.avatar}`
-                }
-                alt="user"
-            />
+        <div className={styles.previewChatBox} onClick={handleClick}>
+            <img src={avatarSrc} alt='user' />
             <div className={styles.infoContainer}>
                 <div className={styles.interlocutorInfo}>
-                    <span className={styles.interlocutorName}>
-                        {interlocutor.firstName}
-                    </span>
+                    <span className={styles.interlocutorName}>{firstName}</span>
                     <span className={styles.interlocutorMessage}>{text}</span>
                 </div>
                 <div className={styles.buttonsContainer}>
                     <span className={styles.time}>{getTimeStr(createAt)}</span>
                     <i
-                        onClick={(event) =>
+                        onClick={event =>
                             changeFavorite(
-                                {
-                                    participants,
-                                    favoriteFlag: !isFavorite,
-                                },
+                                { participants, favoriteFlag: !isFavorite },
                                 event
                             )
                         }
@@ -67,12 +94,9 @@ const DialogBox = (props) => {
                         })}
                     />
                     <i
-                        onClick={(event) =>
+                        onClick={event =>
                             changeBlackList(
-                                {
-                                    participants,
-                                    blackListFlag: !isBlocked,
-                                },
+                                { participants, blackListFlag: !isBlocked },
                                 event
                             )
                         }
@@ -82,7 +106,10 @@ const DialogBox = (props) => {
                         })}
                     />
                     <i
-                        onClick={(event) => catalogOperation(event, _id)}
+                        onClick={event => {
+                            catalogOperation(event, id);
+                            dispatch(setAddChatId(id));
+                        }}
                         className={classNames({
                             'far fa-plus-square':
                                 chatMode !==

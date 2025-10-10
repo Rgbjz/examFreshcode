@@ -1,70 +1,81 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector, useDispatch } from 'react-redux';
 import { Formik, Form } from 'formik';
 import SelectInput from '../../../SelectInput/SelectInput';
 import { addChatToCatalog } from '../../../../store/slices/chatSlice';
 import styles from './AddToCatalog.module.sass';
 
-const AddToCatalog = (props) => {
-    const getCatalogsNames = () => {
-        const { catalogList } = props;
-        const namesArray = [];
-        catalogList.forEach((catalog) => {
-            namesArray.push(catalog.catalogName);
+const AddToCatalog = ({ catalogList }) => {
+    const dispatch = useDispatch();
+    const addChatId = useSelector(state => state.chatStore.selectedChatId);
+    const currentCatalog = useSelector(state => state.chatStore.currentCatalog);
+
+    const handleSubmit = (values, { resetForm }) => {
+        if (!addChatId || !values.catalogId) return;
+
+        dispatch(
+            addChatToCatalog({
+                chatId: addChatId,
+                catalogId: values.catalogId,
+            })
+        ).then(action => {
+            if (action.payload) {
+                if (currentCatalog && currentCatalog.id === action.payload.id) {
+                    currentCatalog.chats = [
+                        ...new Set(
+                            action.payload.chats.map(c => (c.id ? c.id : c))
+                        ),
+                    ];
+                }
+            }
         });
-        return namesArray;
+
+        resetForm();
     };
 
-    const getValueArray = () => {
-        const { catalogList } = props;
-        const valueArray = [];
-        catalogList.forEach((catalog) => {
-            valueArray.push(catalog._id);
-        });
-        return valueArray;
-    };
+    const selectArray = catalogList.map(c => c.catalogName);
+    const valueArray = catalogList.map(c => c.id);
 
-    const click = (values) => {
-        const { addChatId } = props;
-        props.addChatToCatalog({
-            chatId: addChatId,
-            catalogId: values.catalogId,
-        });
-    };
+    if (!selectArray.length) {
+        return (
+            <div className={styles.notFound}>
+                You have not created any directories.
+            </div>
+        );
+    }
 
-    const selectArray = getCatalogsNames();
     return (
-        <>
-            {selectArray.length !== 0 ? (
-                <Formik onSubmit={click} initialValues={{ catalogId: '' }}>
-                    <Form className={styles.form}>
-                        <SelectInput
-                            name="catalogId"
-                            header="name of catalog"
-                            classes={{
-                                inputContainer: styles.selectInputContainer,
-                                inputHeader: styles.selectHeader,
-                                selectInput: styles.select,
-                            }}
-                            optionsArray={selectArray}
-                            valueArray={getValueArray()}
-                        />
-                        <button type="submit">Add</button>
-                    </Form>
-                </Formik>
-            ) : (
-                <div className={styles.notFound}>
-                    You have not created any directories.
-                </div>
+        <Formik initialValues={{ catalogId: '' }} onSubmit={handleSubmit}>
+            {({ setFieldValue, values }) => (
+                <Form className={styles.form}>
+                    <SelectInput
+                        name='catalogId'
+                        header='Name of catalog'
+                        classes={{
+                            inputContainer: styles.selectInputContainer,
+                            inputHeader: styles.selectHeader,
+                            selectInput: styles.select,
+                        }}
+                        optionsArray={selectArray}
+                        valueArray={valueArray}
+                        value={values.catalogId}
+                        onChange={value => setFieldValue('catalogId', value)}
+                    />
+                    <button
+                        type='submit'
+                        className={styles.addButton}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        Add
+                    </button>
+                </Form>
             )}
-        </>
+        </Formik>
     );
 };
 
-const mapStateToProps = (state) => state.chatStore;
-
-const mapDispatchToProps = (dispatch) => ({
-    addChatToCatalog: (data) => dispatch(addChatToCatalog(data)),
+const mapStateToProps = state => ({
+    catalogList: state.chatStore.catalogList,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddToCatalog);
+export default connect(mapStateToProps)(AddToCatalog);

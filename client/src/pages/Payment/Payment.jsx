@@ -1,20 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import isEmpty from 'lodash/isEmpty';
 import { pay, clearPaymentStore } from '../../store/slices/paymentSlice';
 import PayForm from '../../components/PayForm/PayForm';
 import styles from './Payment.module.sass';
-import CONSTANTS from '../../constants';
 import Error from '../../components/Error/Error';
 
-const Payment = (props) => {
+const Payment = props => {
     const navigate = useNavigate();
+    const { contests } = props.contestCreationStore;
+    const { error } = props.payment;
+    const { clearPaymentStore } = props;
 
-    const pay = (values) => {
-        const { contests } = props.contestCreationStore;
+    useEffect(() => {
+        if (isEmpty(contests)) {
+            navigate('/startContest', { replace: true });
+        }
+    }, [contests, navigate]);
+
+    const pay = values => {
         const contestArray = [];
-        Object.keys(contests).forEach((key) =>
+        Object.keys(contests).forEach(key =>
             contestArray.push({ ...contests[key] })
         );
         const { number, expiry, cvc } = values;
@@ -28,24 +35,13 @@ const Payment = (props) => {
         data.append('cvc', cvc);
         data.append('contests', JSON.stringify(contestArray));
         data.append('price', '100');
-        props.pay({
-            data: {
-                formData: data,
-            },
-            navigate,
-        });
+        props.pay({ data: { formData: data }, navigate });
     };
 
     const goBack = () => {
         navigate(-1);
     };
 
-    const { contests } = props.contestCreationStore;
-    const { error } = props.payment;
-    const { clearPaymentStore } = props;
-    if (isEmpty(contests)) {
-        navigate('/startContest', { replace: true });
-    }
     return (
         <div className={styles.mainContainer}>
             <div className={styles.paymentContainer}>
@@ -71,18 +67,18 @@ const Payment = (props) => {
                     <span>Total:</span>
                     <span>$100.00 USD</span>
                 </div>
-                <a href="http://www.google.com">Have a promo code?</a>
+                <a href='http://www.google.com'>Have a promo code?</a>
             </div>
         </div>
     );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
     payment: state.payment,
     contestCreationStore: state.contestCreationStore,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
     pay: ({ data, navigate }) => dispatch(pay({ data, navigate })),
     clearPaymentStore: () => dispatch(clearPaymentStore()),
 });

@@ -4,7 +4,10 @@ import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import LightBox from 'react-18-image-lightbox';
 import withRouter from '../../hocs/withRouter';
-import { goToExpandedDialog } from '../../store/slices/chatSlice';
+import {
+    goToExpandedDialog,
+    getDialogMessages,
+} from '../../store/slices/chatSlice';
 import {
     getContestById,
     setOfferStatus,
@@ -26,11 +29,11 @@ import 'react-18-image-lightbox/style.css';
 import Error from '../../components/Error/Error';
 
 class ContestPage extends React.Component {
-    componentWillUnmount() {
+    componentWillUnmount () {
         this.props.changeEditContest(false);
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getData();
     }
 
@@ -64,7 +67,7 @@ class ContestPage extends React.Component {
         );
     };
 
-    needButtons = (offerStatus) => {
+    needButtons = offerStatus => {
         const contestCreatorId =
             this.props.contestByIdStore.contestData.User.id;
         const userId = this.props.userStore.data.id;
@@ -91,35 +94,35 @@ class ContestPage extends React.Component {
         this.props.setOfferStatus(obj);
     };
 
-    findConversationInfo = (interlocutorId) => {
+    findConversationInfo = interlocutorId => {
         const { messagesPreview } = this.props.chatStore;
-        const { id } = this.props.userStore.data;
-        const participants = [id, interlocutorId];
-        participants.sort(
-            (participant1, participant2) => participant1 - participant2
-        );
+
+        const participants = [interlocutorId];
+
         for (let i = 0; i < messagesPreview.length; i++) {
-            if (isEqual(participants, messagesPreview[i].participants)) {
+            const chatParticipants = messagesPreview[i].participants;
+            if (
+                chatParticipants.length === 2 &&
+                chatParticipants.includes(interlocutorId)
+            ) {
                 return {
-                    participants: messagesPreview[i].participants,
-                    _id: messagesPreview[i]._id,
+                    participants: chatParticipants,
+                    id: messagesPreview[i].id,
                     blackList: messagesPreview[i].blackList,
                     favoriteList: messagesPreview[i].favoriteList,
                 };
             }
         }
+
         return null;
     };
 
     goChat = () => {
         const { User } = this.props.contestByIdStore.contestData;
-        this.props.goToExpandedDialog({
-            interlocutor: User,
-            conversationData: this.findConversationInfo(User.id),
-        });
+        this.props.getDialogMessages({ interlocutorId: User.id });
     };
 
-    render() {
+    render () {
         const { role } = this.props.userStore.data;
         const {
             contestByIdStore,
@@ -140,7 +143,6 @@ class ContestPage extends React.Component {
         } = contestByIdStore;
         return (
             <div>
-                {/* <Chat/> */}
                 {isShowOnFull && (
                     <LightBox
                         mainSrc={`${CONSTANTS.publicURL}${imagePath}`}
@@ -226,19 +228,20 @@ class ContestPage extends React.Component {
     }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
     const { contestByIdStore, userStore, chatStore } = state;
     return { contestByIdStore, userStore, chatStore };
 };
 
-const mapDispatchToProps = (dispatch) => ({
-    getData: (data) => dispatch(getContestById(data)),
-    setOfferStatus: (data) => dispatch(setOfferStatus(data)),
+const mapDispatchToProps = dispatch => ({
+    getData: data => dispatch(getContestById(data)),
+    setOfferStatus: data => dispatch(setOfferStatus(data)),
     clearSetOfferStatusError: () => dispatch(clearSetOfferStatusError()),
-    goToExpandedDialog: (data) => dispatch(goToExpandedDialog(data)),
-    changeEditContest: (data) => dispatch(changeEditContest(data)),
-    changeContestViewMode: (data) => dispatch(changeContestViewMode(data)),
-    changeShowImage: (data) => dispatch(changeShowImage(data)),
+    goToExpandedDialog: data => dispatch(goToExpandedDialog(data)),
+    changeEditContest: data => dispatch(changeEditContest(data)),
+    changeContestViewMode: data => dispatch(changeContestViewMode(data)),
+    changeShowImage: data => dispatch(changeShowImage(data)),
+    getDialogMessages: data => dispatch(getDialogMessages(data)),
 });
 
 export default connect(

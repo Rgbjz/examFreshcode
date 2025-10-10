@@ -4,24 +4,24 @@ import WebSocket from './WebSocket';
 import Notification from '../../../components/Notification/Notification';
 
 class NotificationSocket extends WebSocket {
-    constructor(dispatch, getState, room) {
+    constructor (dispatch, getState, room) {
         super(dispatch, getState, room);
     }
 
-    anotherSubscribes = () => {
-        this.onEntryCreated();
-        this.onChangeMark();
-        this.onChangeOfferStatus();
+    anotherSubscribes = socket => {
+        this.onEntryCreated(socket);
+        this.onChangeMark(socket);
+        this.onChangeOfferStatus(socket);
     };
 
-    onChangeMark = () => {
-        this.socket.on('changeMark', () => {
+    onChangeMark = socket => {
+        socket.on('changeMark', () => {
             toast('Someone liked your offer');
         });
     };
 
-    onChangeOfferStatus = () => {
-        this.socket.on('changeOfferStatus', (message) => {
+    onChangeOfferStatus = socket => {
+        socket.on('changeOfferStatus', message => {
             toast(
                 <Notification
                     message={message.message}
@@ -31,17 +31,17 @@ class NotificationSocket extends WebSocket {
         });
     };
 
-    onEntryCreated = () => {
-        this.socket.on('onEntryCreated', () => {
+    onEntryCreated = socket => {
+        socket.on('onEntryCreated', () => {
             toast('New Entry');
         });
     };
 
-    subscribe = (id) => {
+    subscribe = id => {
         this.socket.emit('subscribe', id);
     };
 
-    unsubsctibe = (id) => {
+    unsubscribe = id => {
         this.socket.emit('unsubscribe', id);
     };
 }

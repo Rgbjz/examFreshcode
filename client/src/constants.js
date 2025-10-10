@@ -4,6 +4,7 @@ const serverPort = 5000;
 export default {
     CUSTOMER: 'customer',
     CREATOR: 'creator',
+    MODERATOR: 'moderator',
     CONTEST_STATUS_ACTIVE: 'active',
     CONTEST_STATUS_FINISHED: 'finished',
     CONTEST_STATUS_PENDING: 'pending',
@@ -18,6 +19,7 @@ export default {
     STATIC_IMAGES_PATH: '/staticImages/',
     ANONYM_IMAGE_PATH: '/staticImages/anonym.png',
     BASE_URL: `http://${serverIP}:${serverPort}/api`,
+    SOCKET_URL: `http://${serverIP}:${serverPort}`,
     ACCESS_TOKEN: 'accessToken',
     publicURL:
         env === 'production'
