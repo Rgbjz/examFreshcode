@@ -16,18 +16,9 @@ import OptionalSelects from '../OptionalSelects/OptionalSelects';
 import ButtonGroup from '../ButtonGroup/ButtonGroup';
 
 const variableOptions = {
-    [CONSTANTS.NAME_CONTEST]: {
-        styleName: '',
-        typeOfName: '',
-    },
-    [CONSTANTS.LOGO_CONTEST]: {
-        nameVenture: '',
-        brandStyle: '',
-    },
-    [CONSTANTS.TAGLINE_CONTEST]: {
-        nameVenture: '',
-        typeOfTagline: '',
-    },
+    [CONSTANTS.NAME_CONTEST]: { styleName: '', typeOfName: '' },
+    [CONSTANTS.LOGO_CONTEST]: { nameVenture: '', brandStyle: '' },
+    [CONSTANTS.TAGLINE_CONTEST]: { nameVenture: '', typeOfTagline: '' },
 };
 
 class ContestForm extends React.Component {
@@ -128,14 +119,14 @@ class ContestForm extends React.Component {
                                 <FormTextArea
                                     name='focusOfWork'
                                     type='text'
-                                    label='e.g. We`re an online lifestyle brand that provides stylish and high quality apparel to the expert eco-conscious shopper'
+                                    label='e.g. Were an online lifestyle brand that provides stylish and high quality apparel to the expert eco-conscious shopper'
                                     classes={{
                                         container:
                                             styles.componentInputContainer,
                                         inputStyle: styles.textArea,
                                         warning: styles.warning,
                                     }}
-                                />
+                                />{' '}
                             </div>
                             <div className={styles.inputContainer}>
                                 <span className={styles.inputHeader}>
@@ -197,6 +188,7 @@ const mapStateToProps = (state, ownProps) => {
         initialValues: ownProps.defaultData,
     };
 };
+
 const mapDispatchToProps = dispatch => ({
     getData: data => dispatch(getDataForContest(data)),
 });

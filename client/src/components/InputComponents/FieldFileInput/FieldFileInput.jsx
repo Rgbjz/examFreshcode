@@ -1,35 +1,40 @@
 import React from 'react';
-import { Field } from 'formik';
+import { Field, useFormikContext } from 'formik';
 
 const FieldFileInput = ({ classes, ...rest }) => {
+    const { setFieldValue } = useFormikContext();
     const { fileUploadContainer, labelClass, fileNameClass, fileInput } =
         classes;
 
     return (
         <Field name={rest.name}>
-            {(props) => {
-                const { field } = props;
-
+            {({ field }) => {
                 const getFileName = () => {
-                    if (props.field.value) {
-                        return props.field.value.name;
+                    if (field.value instanceof File) {
+                        return field.value.name;
                     }
                     return '';
                 };
 
+                const handleChange = e => {
+                    const file = e.currentTarget.files[0] || null;
+                    setFieldValue(rest.name, file); // ⬅️ вот ключевая часть
+                };
+
                 return (
                     <div className={fileUploadContainer}>
-                        <label htmlFor="fileInput" className={labelClass}>
+                        <label htmlFor={rest.name} className={labelClass}>
                             Choose file
                         </label>
-                        <span id="fileNameContainer" className={fileNameClass}>
+                        <span id='fileNameContainer' className={fileNameClass}>
                             {getFileName()}
                         </span>
                         <input
-                            {...field}
+                            id={rest.name}
+                            name={rest.name}
+                            type='file'
                             className={fileInput}
-                            id="fileInput"
-                            type="file"
+                            onChange={handleChange}
                         />
                     </div>
                 );

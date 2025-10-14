@@ -1,0 +1,64 @@
+.inputContainer
+  display: flex
+  justify-content: center
+  align-items: center
+  border-top: 1px solid #f3f3f3
+  padding: 10px
+  width: 100%
+  height: 60px
+  box-sizing: border-box
+
+  .form
+    display: flex
+    flex-direction: row
+    align-items: center
+    width: 100%
+    gap: 10px
+
+    .container
+      flex: 1
+      display: flex
+      align-items: center
+
+      .input
+        width: 100%
+        height: 35px
+        outline: none
+        border-radius: 6px
+        padding: 6px 10px
+        border: 2px solid #d0d0d0
+        box-sizing: border-box
+
+        &:focus
+          transition: border 0.5s
+          border-color: #28d2d0
+
+        &:hover
+          transition: border 0.5s
+          border-color: #28d2d0
+
+      .notValid
+        border: 1px solid red !important
+
+    button
+      display: flex
+      align-items: center
+      justify-content: center
+      width: 40px
+      height: 40px
+      padding: 0
+      border: none
+      background-color: transparent
+      outline: none
+      cursor: pointer
+      flex-shrink: 0
+
+      img
+        width: 24px
+        height: 24px
+        transform: rotate(150deg)
+        transition: transform 0.2s ease
+
+        &:hover
+          transform: rotate(150deg) scale(1.2)
+

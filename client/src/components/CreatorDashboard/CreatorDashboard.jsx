@@ -88,13 +88,13 @@ class CreatorDashboard extends React.Component {
         );
     };
 
-    componentWillReceiveProps(nextProps, nextContext) {
+    componentWillReceiveProps (nextProps) {
         if (nextProps.location.search !== this.props.location.search) {
             this.parseUrlForParams(nextProps.location.search);
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.getDataForContest();
         if (
             this.parseUrlForParams(this.props.location.search) &&
@@ -103,7 +103,7 @@ class CreatorDashboard extends React.Component {
             this.getContests(this.props.creatorFilter);
     }
 
-    getContests = (filter) => {
+    getContests = filter => {
         this.props.getContests({
             limit: 8,
             offset: 0,
@@ -122,15 +122,15 @@ class CreatorDashboard extends React.Component {
         });
     };
 
-    parseParamsToUrl = (creatorFilter) => {
+    parseParamsToUrl = creatorFilter => {
         const obj = {};
-        Object.keys(creatorFilter).forEach((el) => {
+        Object.keys(creatorFilter).forEach(el => {
             if (creatorFilter[el]) obj[el] = creatorFilter[el];
         });
         this.props.navigate(`/Dashboard?${queryString.stringify(obj)}`);
     };
 
-    parseUrlForParams = (search) => {
+    parseUrlForParams = search => {
         const obj = queryString.parse(search);
         const filter = {
             typeIndex: obj.typeIndex || 1,
@@ -139,6 +139,10 @@ class CreatorDashboard extends React.Component {
             awardSort: obj.awardSort || 'asc',
             ownEntries:
                 typeof obj.ownEntries === 'undefined' ? false : obj.ownEntries,
+            onlyActive:
+                typeof obj.onlyActive === 'undefined'
+                    ? false
+                    : obj.onlyActive === 'true' || obj.onlyActive === true,
         };
         if (!isEqual(filter, this.props.creatorFilter)) {
             this.props.newFilter(filter);
@@ -152,16 +156,15 @@ class CreatorDashboard extends React.Component {
     getPredicateOfRequest = () => {
         const obj = {};
         const { creatorFilter } = this.props;
-        Object.keys(creatorFilter).forEach((el) => {
-            if (creatorFilter[el]) {
-                obj[el] = creatorFilter[el];
-            }
+        Object.keys(creatorFilter).forEach(el => {
+            if (creatorFilter[el]) obj[el] = creatorFilter[el];
         });
         obj.ownEntries = creatorFilter.ownEntries;
+        obj.onlyActive = creatorFilter.onlyActive;
         return obj;
     };
 
-    loadMore = (startFrom) => {
+    loadMore = startFrom => {
         this.props.getContests({
             limit: 8,
             offset: startFrom,
@@ -170,13 +173,19 @@ class CreatorDashboard extends React.Component {
     };
 
     setContestList = () => {
+        const { contests, creatorFilter } = this.props;
+        let filtered = contests;
+
+        if (creatorFilter.onlyActive) {
+            filtered = contests.filter(c => c.status === 'active');
+        }
+
         const array = [];
-        const { contests } = this.props;
-        for (let i = 0; i < contests.length; i++) {
+        for (let i = 0; i < filtered.length; i++) {
             array.push(
                 <ContestBox
-                    data={contests[i]}
-                    key={contests[i].id}
+                    data={filtered[i]}
+                    key={filtered[i].id}
                     goToExtended={this.goToExtended}
                 />
             );
@@ -184,7 +193,7 @@ class CreatorDashboard extends React.Component {
         return array;
     };
 
-    goToExtended = (contestId) => {
+    goToExtended = contestId => {
         this.props.navigate(`/contest/${contestId}`);
     };
 
@@ -197,7 +206,12 @@ class CreatorDashboard extends React.Component {
         });
     };
 
-    render() {
+    toggleFilter = name => {
+        const current = this.props.creatorFilter[name];
+        this.changePredicate({ name, value: !current });
+    };
+
+    render () {
         const { error, haveMore, creatorFilter } = this.props;
         const { isFetching } = this.props.dataForContest;
         return (
@@ -206,18 +220,22 @@ class CreatorDashboard extends React.Component {
                     <span className={styles.headerFilter}>Filter Results</span>
                     <div className={styles.inputsContainer}>
                         <div
-                            onClick={() =>
-                                this.changePredicate({
-                                    name: 'ownEntries',
-                                    value: !creatorFilter.ownEntries,
-                                })
-                            }
+                            onClick={() => this.toggleFilter('ownEntries')}
                             className={classNames(styles.myEntries, {
                                 [styles.activeMyEntries]:
                                     creatorFilter.ownEntries,
                             })}
                         >
                             My Entries
+                        </div>
+                        <div
+                            onClick={() => this.toggleFilter('onlyActive')}
+                            className={classNames(styles.myEntries, {
+                                [styles.activeMyEntries]:
+                                    creatorFilter.onlyActive,
+                            })}
+                        >
+                            Only Active
                         </div>
                         <div className={styles.inputContainer}>
                             <span>By contest type</span>
@@ -226,14 +244,14 @@ class CreatorDashboard extends React.Component {
                         <div className={styles.inputContainer}>
                             <span>By contest ID</span>
                             <input
-                                type="text"
+                                type='text'
                                 onChange={({ target }) =>
                                     this.changePredicate({
                                         name: 'contestId',
                                         value: target.value,
                                     })
                                 }
-                                name="contestId"
+                                name='contestId'
                                 value={creatorFilter.contestId}
                                 className={styles.input}
                             />
@@ -256,8 +274,8 @@ class CreatorDashboard extends React.Component {
                                 value={creatorFilter.awardSort}
                                 className={styles.input}
                             >
-                                <option value="desc">Descending</option>
-                                <option value="asc">Ascending</option>
+                                <option value='desc'>Descending</option>
+                                <option value='asc'>Ascending</option>
                             </select>
                         </div>
                     </div>
@@ -281,16 +299,16 @@ class CreatorDashboard extends React.Component {
     }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
     const { contestsList, dataForContest } = state;
     return { ...contestsList, dataForContest };
 };
 
-const mapDispatchToProps = (dispatch) => ({
-    getContests: (data) =>
+const mapDispatchToProps = dispatch => ({
+    getContests: data =>
         dispatch(getContests({ requestData: data, role: CONSTANTS.CREATOR })),
     clearContestsList: () => dispatch(clearContestsList()),
-    newFilter: (filter) => dispatch(setNewCreatorFilter(filter)),
+    newFilter: filter => dispatch(setNewCreatorFilter(filter)),
     getDataForContest: () => dispatch(getDataForContest()),
 });
 

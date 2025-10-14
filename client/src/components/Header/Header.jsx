@@ -14,6 +14,14 @@ class Header extends React.Component {
         }
     }
 
+    componentDidUpdate (prevProps) {
+        if (!prevProps.data && this.props.data) {
+            if (this.props.data.role === 'moderator') {
+                this.props.navigate('/moderator', { replace: true });
+            }
+        }
+    }
+
     logOut = () => {
         localStorage.clear();
         this.props.clearUserStore();
@@ -23,8 +31,13 @@ class Header extends React.Component {
     startContests = () => {
         this.props.navigate('/startContest');
     };
+    reviewOffers = () => {
+        this.props.navigate('/moderator');
+    };
 
     renderLoginButtons = () => {
+        const { data } = this.props;
+        const isModerator = data?.role === 'moderator';
         if (this.props.data) {
             return (
                 <>
@@ -43,14 +56,17 @@ class Header extends React.Component {
                             alt='menu'
                         />
                         <ul>
-                            <li>
-                                <Link
-                                    to='/dashboard'
-                                    style={{ textDecoration: 'none' }}
-                                >
-                                    <span>View Dashboard</span>
-                                </Link>
-                            </li>
+                            {!isModerator && (
+                                <li>
+                                    <Link
+                                        to='/dashboard'
+                                        style={{ textDecoration: 'none' }}
+                                    >
+                                        <span>View Dashboard</span>
+                                    </Link>
+                                </li>
+                            )}
+
                             <li>
                                 <Link
                                     to='/account'
@@ -128,6 +144,8 @@ class Header extends React.Component {
         if (this.props.isFetching) {
             return null;
         }
+        const isModerator =
+            this.props.data && this.props.data.role === 'moderator';
         return (
             <div className={styles.headerContainer}>
                 <div className={styles.fixedHeader}>
@@ -356,15 +374,26 @@ class Header extends React.Component {
                                 </li>
                             </ul>
                         </div>
-                        {this.props.data &&
-                            this.props.data.role !== CONSTANTS.CREATOR && (
-                                <div
-                                    className={styles.startContestBtn}
-                                    onClick={this.startContests}
-                                >
-                                    START CONTEST
-                                </div>
-                            )}
+                        {this.props.data && (
+                            <>
+                                {isModerator ? (
+                                    <div
+                                        className={styles.startContestBtn}
+                                        onClick={this.reviewOffers}
+                                    >
+                                        REVIEW OFFERS
+                                    </div>
+                                ) : this.props.data.role !==
+                                  CONSTANTS.CREATOR ? (
+                                    <div
+                                        className={styles.startContestBtn}
+                                        onClick={this.startContests}
+                                    >
+                                        START CONTEST
+                                    </div>
+                                ) : null}
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

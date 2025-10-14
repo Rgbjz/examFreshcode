@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import className from 'classnames';
 import ChatHeader from '../../ChatComponents/ChatHeader/ChatHeader';
-import ChatInput from '../../ChatComponents/ChatInut/ChatInput';
+import ChatInput from '../../ChatComponents/ChatInput/ChatInput';
 import {
     getDialogMessages,
     clearMessageList,
@@ -118,19 +118,21 @@ class Dialog extends React.Component {
         const chatData = this.getCurrentChatData();
 
         return (
-            <>
+            <div className={styles.dialogContainer}>
                 <ChatHeader
                     userId={userId}
                     chatData={chatData}
                     interlocutor={interlocutor}
                 />
-                {this.renderMainDialog()}
+                <div className={styles.messagesWrapper}>
+                    {this.renderMainDialog()}
+                </div>
                 {chatData && chatData.blackList.includes(true) ? (
                     this.renderBlockMessage(chatData)
                 ) : (
                     <ChatInput />
                 )}
-            </>
+            </div>
         );
     }
 }

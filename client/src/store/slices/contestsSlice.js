@@ -16,6 +16,7 @@ const initialState = {
         industry: '',
         awardSort: 'asc',
         ownEntries: false,
+        onlyActive: false,
     },
     haveMore: true,
 };
@@ -32,7 +33,7 @@ export const getContests = decorateAsyncThunk({
 });
 
 const reducers = {
-    clearContestsList: (state) => {
+    clearContestsList: state => {
         state.error = null;
         state.contests = [];
     },
@@ -48,7 +49,7 @@ const reducers = {
     }),
 };
 
-const extraReducers = (builder) => {
+const extraReducers = builder => {
     builder.addCase(getContests.pending, pendingReducer);
     builder.addCase(getContests.fulfilled, (state, { payload }) => {
         state.isFetching = false;

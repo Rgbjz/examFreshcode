@@ -7,6 +7,7 @@ import NextButton from '../../components/NextButton/NextButton';
 import ContestForm from '../../components/ContestForm/ContestForm';
 import BackButton from '../../components/BackButton/BackButton';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
+import store from '../../store/index';
 
 const ContestCreationPage = props => {
     const formRef = useRef();
@@ -18,6 +19,7 @@ const ContestCreationPage = props => {
 
     const handleSubmit = values => {
         props.saveContest({ type: props.contestType, info: values });
+
         const route =
             props.bundleStore.bundle[props.contestType] === 'payment'
                 ? '/payment'
