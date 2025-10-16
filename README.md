@@ -1,63 +1,30 @@
-# Project README
+# 🚀 Project README
 
-## Development Environment
+## 📦 Development Environment
 
-### Running the Application Without Docker
+This project runs entirely in **Docker**.  
+No local installation of Node.js, PostgreSQL, is required.
 
-To run the project without Docker, make sure you have Node.js, npm, MongoDB, and PostgreSQL installed locally. Use the `.env` and database configurations below to connect the application correctly.
-
-**Note:** Docker is not working on my system, so the project was run locally using Node.js, npm, MongoDB, and PostgreSQL.
 ---
 
-## Environment / Configuration
+## 🧰 Requirements
 
-### Server `.env` file
-```env
+Before starting, make sure you have installed:
 
-you must specify your data for: SMTP_USER, SMTP_PASSWORD
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/)
 
-PORT=5000
+---
+
+# SMTP for mailing
+
 SMTP_USER=
 SMTP_PASS=
 
-PostgreSQL configuration
-{
-  "development": {
-    "username": "postgres",
-    "password": "qwertyplayer19",
-    "database": "todo-dev",
-    "host": "localhost",
-    "dialect": "postgres",
-    "operatorsAliases": "Op",
-    "seederStorage": "sequelize"
-  },
-  "test": {
-    "username": "postgres",
-    "password": "admin",
-    "database": "squad-help-test",
-    "host": "localhost",
-    "dialect": "postgres",
-    "operatorsAliases": "Op",
-    "seederStorage": "sequelize"
-  },
-  "production": {
-    "username": "postgres",
-    "password": "admin",
-    "database": "squad-help-prod",
-    "host": "localhost",
-    "dialect": "postgres",
-    "operatorsAliases": "Op",
-    "seederStorage": "sequelize"
-  }
-}
+# Run the Application
 
-Start the server and client:
-
-# Server
-npm run dev
-
-# Client
-npm start
+docker compose -f docker-compose-dev.yaml build
+docker compose -f docker-compose-dev.yaml up
 
 The application will be available at http://localhost:3000.
 
