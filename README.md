@@ -28,6 +28,25 @@ docker compose -f docker-compose-dev.yaml up
 
 The application will be available at http://localhost:3000.
 
+👤 Seeded Users / Test Accounts
+
+After running migrations and seeders, several test users are automatically created in the database.
+You can use these accounts to log in and test different roles in the system:
+
+Moderator
+Email: moderator@gmail.com
+Password: 123456
+
+Buyer
+Email: buyer@gmail.com
+Password: 123456
+
+Creative
+Email: creative@gmail.com
+Password: 123456
+
+For the Creative role, it’s recommended to also register a new account with your real email address, so that you can receive real email notifications (e.g., moderator decisions and other system messages).
+
 LAYOUT
 
 the how-it-works page was created, the link from the user menu CONTESTS/How it Works leads to it
