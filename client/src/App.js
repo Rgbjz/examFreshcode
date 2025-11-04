@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import { ToastContainer } from 'react-toastify';
@@ -24,89 +24,112 @@ import HowItWorks from './pages/HowItWorks/HowItWorks';
 import EventPage from './pages/EventPage/EventPage';
 import WithModeratorRoute from './components/Routes/WithModeratorRoute/WithModeratorRoute';
 import ModeratorPage from './pages/ModeratorPage/ModeratorPage';
+import CustomerRoute from './components/Routes/CustomerRoute/CustomerRoute';
+import useEventWatcher from './components/Hooks/useEventWatcher';
 
-class App extends Component {
-    render () {
-        return (
-            <Router history={browserHistory}>
-                <ToastContainer
-                    position='top-center'
-                    autoClose={5000}
-                    hideProgressBar
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnVisibilityChange
-                    draggable
-                    pauseOnHover
-                />
-                <Routes>
-                    <Route path='/' element={<Layout />}>
-                        <Route index element={<Home />} />
+export default function App () {
+    const [events, setEvents] = useState([]);
 
-                        <Route element={<OnlyNotAuthorizedUserRoute />}>
-                            <Route path='/login' element={<LoginPage />} />
-                            <Route
-                                path='/registration'
-                                element={<RegistrationPage />}
-                            />
-                        </Route>
-                        <Route path='/howItWorks' element={<HowItWorks />} />
+    useEffect(() => {
+        const saved = localStorage.getItem('events');
+        if (saved) setEvents(JSON.parse(saved));
+    }, []);
 
-                        <Route element={<PrivateRoute />}>
-                            <Route path='/payment' element={<Payment />} />
-                            <Route
-                                path='/startContest'
-                                element={<StartContestPage />}
-                            />
-                            <Route
-                                path='/startContest/nameContest'
-                                element={
-                                    <ContestCreationPage
-                                        contestType={CONSTANTS.NAME_CONTEST}
-                                        title='Company Name'
-                                    />
-                                }
-                            />
-                            <Route
-                                path='/startContest/taglineContest'
-                                element={
-                                    <ContestCreationPage
-                                        contestType={CONSTANTS.TAGLINE_CONTEST}
-                                        title='TAGLINE'
-                                    />
-                                }
-                            />
-                            <Route
-                                path='/startContest/logoContest'
-                                element={
-                                    <ContestCreationPage
-                                        contestType={CONSTANTS.LOGO_CONTEST}
-                                        title='LOGO'
-                                    />
-                                }
-                            />
-                            <Route path='/dashboard' element={<Dashboard />} />
-                            <Route
-                                path='/contest/:id'
-                                element={<ContestPage />}
-                            />
-                            <Route path='/account' element={<UserProfile />} />
-                            <Route path='/myEvents' element={<EventPage />} />
-                        </Route>
-                        <Route element={<WithModeratorRoute />}>
-                            <Route
-                                path='/moderator'
-                                element={<ModeratorPage />}
-                            />
-                        </Route>
-                        <Route path='*' element={<NotFound />} />
+    useEffect(() => {
+        localStorage.setItem('events', JSON.stringify(events));
+    }, [events]);
+
+    const updateEvent = updated => {
+        setEvents(prev => prev.map(e => (e.id === updated.id ? updated : e)));
+    };
+
+    useEventWatcher(events, updateEvent);
+
+    return (
+        <Router history={browserHistory}>
+            <ToastContainer
+                position='top-center'
+                autoClose={5000}
+                hideProgressBar
+            />
+
+            <Routes>
+                <Route path='/' element={<Layout />}>
+                    <Route index element={<Home />} />
+
+                    <Route element={<OnlyNotAuthorizedUserRoute />}>
+                        <Route path='/login' element={<LoginPage />} />
+                        <Route
+                            path='/registration'
+                            element={<RegistrationPage />}
+                        />
                     </Route>
-                </Routes>
-                <ChatContainer />
-            </Router>
-        );
-    }
-}
 
-export default App;
+                    <Route path='/howItWorks' element={<HowItWorks />} />
+
+                    <Route element={<PrivateRoute />}>
+                        <Route path='/payment' element={<Payment />} />
+                        <Route
+                            path='/startContest'
+                            element={<StartContestPage />}
+                        />
+
+                        <Route
+                            path='/startContest/nameContest'
+                            element={
+                                <ContestCreationPage
+                                    contestType={CONSTANTS.NAME_CONTEST}
+                                    title='Company Name'
+                                />
+                            }
+                        />
+
+                        <Route
+                            path='/startContest/taglineContest'
+                            element={
+                                <ContestCreationPage
+                                    contestType={CONSTANTS.TAGLINE_CONTEST}
+                                    title='TAGLINE'
+                                />
+                            }
+                        />
+
+                        <Route
+                            path='/startContest/logoContest'
+                            element={
+                                <ContestCreationPage
+                                    contestType={CONSTANTS.LOGO_CONTEST}
+                                    title='LOGO'
+                                />
+                            }
+                        />
+
+                        <Route path='/dashboard' element={<Dashboard />} />
+                        <Route path='/contest/:id' element={<ContestPage />} />
+                        <Route path='/account' element={<UserProfile />} />
+
+                        <Route element={<CustomerRoute />}>
+                            <Route
+                                path='/myEvents'
+                                element={
+                                    <EventPage
+                                        events={events}
+                                        setEvents={setEvents}
+                                    />
+                                }
+                            />
+                        </Route>
+                    </Route>
+
+                    <Route element={<WithModeratorRoute />}>
+                        <Route path='/moderator' element={<ModeratorPage />} />
+                    </Route>
+
+                    <Route path='*' element={<NotFound />} />
+                </Route>
+            </Routes>
+
+            <ChatContainer />
+        </Router>
+    );
+}

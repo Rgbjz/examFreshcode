@@ -4,157 +4,180 @@ import { v4 as uuidv4 } from 'uuid';
 import CONSTANTS from '../../../constants';
 import styles from './EventForm.module.sass';
 
-const EventSchema = Yup.object().shape({
-    name: Yup.string()
-        .min(3, 'Name must be at least 3 characters')
-        .max(50, 'Name must be at most 50 characters')
-        .required('Event name is required'),
-    date: Yup.date()
-        .typeError('Invalid date format')
-        .required('Date is required'),
-    time: Yup.string().required('Time is required'),
-    notifyBefore: Yup.number()
-        .typeError('Must be a number')
-        .min(0, 'Must be greater or equal to 0')
-        .max(1440, 'Cannot be more than 1440 minutes (24h)')
-        .required('Notify Before is required'),
-    type: Yup.string()
-        .oneOf(
-            CONSTANTS.EVENT_TYPES.map(t => t.value),
-            'Invalid event type'
-        )
-        .required('Event type is required'),
-});
+export default function EventForm ({ onAdd, onEdit, editingEvent, cancelEdit }) {
+    // current date/time in local ISO format
+    const pad = n => (n < 10 ? `0${n}` : n);
+    const now = new Date();
+    const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
+        now.getDate()
+    )}`;
+    const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-export default function EventForm ({ onAdd }) {
+    const EventSchema = Yup.object().shape({
+        name: Yup.string()
+            .min(3, 'Name must be at least 3 characters')
+            .max(50, 'Name must be at most 50 characters')
+            .required('Event name is required'),
+
+        date: Yup.string().required('Date is required'),
+
+        time: Yup.string()
+            .required('Time is required')
+            .test('not-in-past', 'Cannot be in the past', function (value) {
+                const { date } = this.parent;
+                if (!date || !value) return true;
+
+                const selected = new Date(`${date}T${value}`);
+                return selected >= new Date();
+            }),
+
+        notifyBefore: Yup.number()
+            .typeError('Must be a number')
+            .min(0, 'Must be >= 0')
+            .max(1440, 'Max 1440 minutes')
+            .required('Notify Before is required'),
+
+        type: Yup.string()
+            .oneOf(CONSTANTS.EVENT_TYPES.map(t => t.value))
+            .required('Event type is required'),
+    });
+
+    const initialValues = editingEvent
+        ? {
+              name: editingEvent.name,
+              date: editingEvent.dateTime.slice(0, 10),
+              time: editingEvent.dateTime.slice(11, 16),
+              notifyBefore: editingEvent.notifyBefore,
+              type: editingEvent.type,
+          }
+        : { name: '', date: '', time: '', notifyBefore: 0, type: 'custom' };
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.header}>
-                <h3 className={styles.title}>Add New Event</h3>
+                <h3 className={styles.title}>
+                    {editingEvent ? 'Edit Event' : 'Add New Event'}
+                </h3>
             </div>
 
             <Formik
-                initialValues={{
-                    name: '',
-                    date: '',
-                    time: '',
-                    notifyBefore: 0,
-                    type: 'custom',
-                }}
+                initialValues={initialValues}
+                enableReinitialize
                 validationSchema={EventSchema}
                 onSubmit={(values, { resetForm }) => {
-                    const dateTimeString = `${values.date}T${values.time}`;
-                    const dateTime = new Date(dateTimeString);
+                    const dateTime = new Date(`${values.date}T${values.time}`);
 
-                    if (isNaN(dateTime.getTime())) {
-                        alert('Invalid date or time!');
+                    if (dateTime < new Date()) {
+                        alert('Cannot set time in the past!');
                         return;
                     }
 
-                    onAdd({
-                        id: uuidv4(),
+                    const eventData = {
+                        id: editingEvent?.id || uuidv4(),
                         name: values.name,
                         dateTime: dateTime.toISOString(),
-                        createdAt: new Date().toISOString(),
+                        createdAt:
+                            editingEvent?.createdAt || new Date().toISOString(),
                         notifyBefore: Number(values.notifyBefore),
                         type: values.type,
-                        notified: false,
-                    });
+                        notifiedBefore: false,
+                        notifiedStart: false,
+                    };
 
+                    editingEvent ? onEdit(eventData) : onAdd(eventData);
                     resetForm();
                 }}
             >
-                {() => (
-                    <Form className={styles.form}>
-                        <div className={styles.group}>
-                            <label htmlFor='name'>Event Name</label>
-                            <Field
-                                id='name'
-                                name='name'
-                                className={styles.input}
-                                placeholder='Enter event name'
-                            />
-                            <ErrorMessage
-                                name='name'
-                                component='div'
-                                className={styles.error}
-                            />
-                        </div>
+                {({ values }) => {
+                    const isToday = values.date === today;
+                    const timeMin = isToday ? currentTime : undefined;
 
-                        <div className={styles.group}>
-                            <label htmlFor='type'>Type</label>
-                            <Field
-                                as='select'
-                                id='type'
-                                name='type'
-                                className={styles.input}
-                            >
-                                {CONSTANTS.EVENT_TYPES.map(type => (
-                                    <option key={type.value} value={type.value}>
-                                        {type.label}
-                                    </option>
-                                ))}
-                            </Field>
-                            <ErrorMessage
-                                name='type'
-                                component='div'
-                                className={styles.error}
-                            />
-                        </div>
+                    return (
+                        <Form className={styles.form}>
+                            <div className={styles.group}>
+                                <label>Event Name</label>
+                                <Field className={styles.input} name='name' />
+                                <ErrorMessage
+                                    name='name'
+                                    className={styles.error}
+                                    component='div'
+                                />
+                            </div>
 
-                        <div className={styles.group}>
-                            <label htmlFor='date'>Date</label>
-                            <Field
-                                id='date'
-                                name='date'
-                                type='date'
-                                className={styles.input}
-                            />
-                            <ErrorMessage
-                                name='date'
-                                component='div'
-                                className={styles.error}
-                            />
-                        </div>
+                            <div className={styles.group}>
+                                <label>Type</label>
+                                <Field
+                                    as='select'
+                                    name='type'
+                                    className={styles.input}
+                                >
+                                    {CONSTANTS.EVENT_TYPES.map(t => (
+                                        <option key={t.value} value={t.value}>
+                                            {t.label}
+                                        </option>
+                                    ))}
+                                </Field>
+                            </div>
 
-                        <div className={styles.group}>
-                            <label htmlFor='time'>Time</label>
-                            <Field
-                                id='time'
-                                name='time'
-                                type='time'
-                                className={styles.input}
-                            />
-                            <ErrorMessage
-                                name='time'
-                                component='div'
-                                className={styles.error}
-                            />
-                        </div>
+                            <div className={styles.group}>
+                                <label>Date</label>
+                                <Field
+                                    type='date'
+                                    name='date'
+                                    className={styles.input}
+                                />
+                                <ErrorMessage
+                                    name='date'
+                                    className={styles.error}
+                                    component='div'
+                                />
+                            </div>
 
-                        <div className={styles.group}>
-                            <label htmlFor='notifyBefore'>
-                                Notify Before (minutes)
-                            </label>
-                            <Field
-                                id='notifyBefore'
-                                name='notifyBefore'
-                                type='number'
-                                min='0'
-                                className={styles.input}
-                            />
-                            <ErrorMessage
-                                name='notifyBefore'
-                                component='div'
-                                className={styles.error}
-                            />
-                        </div>
+                            <div className={styles.group}>
+                                <label>Time</label>
+                                <Field
+                                    type='time'
+                                    name='time'
+                                    className={styles.input}
+                                    {...(timeMin ? { min: timeMin } : {})}
+                                />
+                                <ErrorMessage
+                                    name='time'
+                                    className={styles.error}
+                                    component='div'
+                                />
+                            </div>
 
-                        <button type='submit' className={styles.submit}>
-                            Add Event
-                        </button>
-                    </Form>
-                )}
+                            <div className={styles.group}>
+                                <label>Notify Before (minutes)</label>
+                                <Field
+                                    type='number'
+                                    name='notifyBefore'
+                                    min='0'
+                                    className={styles.input}
+                                />
+                            </div>
+
+                            <div className={styles.actions}>
+                                <button type='submit' className={styles.submit}>
+                                    {editingEvent
+                                        ? 'Save Changes'
+                                        : 'Add Event'}
+                                </button>
+
+                                {editingEvent && (
+                                    <button
+                                        type='button'
+                                        onClick={cancelEdit}
+                                        className={styles.cancel}
+                                    >
+                                        Cancel
+                                    </button>
+                                )}
+                            </div>
+                        </Form>
+                    );
+                }}
             </Formik>
         </div>
     );

@@ -1,8 +1,7 @@
-import { FaRegClock } from 'react-icons/fa';
 import EventItem from '../EventItem/EventItem';
 import styles from './EventList.module.sass';
 
-export default function EventList ({ events, onDelete }) {
+export default function EventList ({ events, onDelete, onUpdate, onEdit }) {
     const now = new Date();
 
     const sortedEvents = [...events].sort((a, b) => {
@@ -15,10 +14,6 @@ export default function EventList ({ events, onDelete }) {
         <div className={styles.wrapper}>
             <div className={styles.header}>
                 <h3 className={styles.title}>Live upcoming checks</h3>
-                <div>
-                    <span className={styles.subtitle}>Remaining time</span>
-                    <FaRegClock className={styles.clockIcon} />
-                </div>
             </div>
 
             {sortedEvents.length === 0 ? (
@@ -30,6 +25,8 @@ export default function EventList ({ events, onDelete }) {
                             key={event.id}
                             event={event}
                             onDelete={onDelete}
+                            onUpdate={onUpdate}
+                            onEdit={onEdit}
                         />
                     ))}
                 </ul>
