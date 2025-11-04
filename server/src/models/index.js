@@ -3,16 +3,11 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
+
+// Визначаємо шлях до конфігураційного файлу через змінні середовища
 const configPath =
-    env === 'production'
-        ? path.join(
-              __dirname,
-              '..',
-              '..',
-              '..',
-              'src/server/config/postgresConfig.json'
-          )
-        : path.join(__dirname, '..', '/config/postgresConfig.json');
+    process.env.PG_CONFIG_PATH ||
+    path.join(__dirname, '..', 'config', 'postgresConfig.json');
 const config = require(configPath)[env];
 const db = {};
 
@@ -23,6 +18,7 @@ const sequelize = new Sequelize(
     config
 );
 
+// Зчитуємо всі файли моделей та додаємо їх до db
 fs.readdirSync(__dirname)
     .filter(file => {
         return (
@@ -39,6 +35,7 @@ fs.readdirSync(__dirname)
         db[model.name] = model;
     });
 
+// Визначаємо асоціації для моделей
 Object.keys(db).forEach(modelName => {
     if (db[modelName].associate) {
         db[modelName].associate(db);
