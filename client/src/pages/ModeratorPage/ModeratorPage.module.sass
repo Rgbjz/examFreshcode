@@ -53,17 +53,14 @@
   margin-right: 8px
 
 .approveBtn
-  background: #4caf50
-  color: #fff
-  &:hover
-    background: #43a047
+  background: none
+  
+  
 
 .declineBtn
-  background: #e53935
-  color: #fff
-  &:hover
-    background: #d32f2f
-
+  background: none
+  
+ 
 .btn:disabled
   opacity: 0.5
   cursor: not-allowed
@@ -87,3 +84,33 @@
   background: #1976d2
   color: #fff
   border-color: #1976d2
+.modalOverlay
+  position: fixed
+  top: 0
+  left: 0
+  width: 100vw
+  height: 100vh
+  background: rgba(0,0,0,.5)
+  display: flex
+  justify-content: center
+  align-items: center
+
+.modal
+  background: #fff
+  padding: 20px
+  border-radius: 10px
+  width: 400px
+
+.detailsBtn
+  padding: 4px 10px
+  border-radius: 4px
+  background: #3498db
+  color: #fff
+  cursor: pointer
+
+.closeModal
+  margin-top: 10px
+  padding: 6px 12px
+  background: #555
+  color: #fff
+  cursor: pointer

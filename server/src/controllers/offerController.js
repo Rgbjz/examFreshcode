@@ -7,7 +7,6 @@ const controller = require('../socketInit');
 const { sendEmail } = require('../utils/mailService');
 const CONSTANTS = require('../constants');
 
-
 const setNewOffer = async (req, res, next) => {
     const obj = {};
     if (req.body.contestType === CONSTANTS.LOGO_CONTEST) {
@@ -47,8 +46,35 @@ const getAllOffersForModerator = async (req, res, next) => {
             include: [
                 {
                     model: db.Contests,
-                    as: 'Contest',
-                    attributes: ['id', 'title', 'status'],
+                    attributes: [
+                        'id',
+                        'title',
+                        'status',
+                        'contestType',
+                        'typeOfName',
+                        'styleName',
+                        'brandStyle',
+                        'industry',
+                        'prize',
+                        'focusOfWork',
+                        'targetCustomer',
+                    ],
+                    include: [
+                        {
+                            model: db.Users,
+                            attributes: [
+                                'id',
+                                'firstName',
+                                'lastName',
+                                'email',
+                            ],
+                        },
+                    ],
+                },
+                {
+                    model: db.Users,
+                    as: 'User',
+                    attributes: ['id', 'firstName', 'lastName', 'email'],
                 },
             ],
             limit,

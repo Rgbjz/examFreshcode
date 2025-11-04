@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     getAllOffers,
@@ -13,6 +13,8 @@ const ModeratorPage = () => {
     const { offers, isFetching, pagination, error, updateStatusError } =
         useSelector(state => state.moderatorOffers);
 
+    const [selectedOffer, setSelectedOffer] = useState(null);
+
     useEffect(() => {
         dispatch(getAllOffers({ page: pagination.page }));
     }, [dispatch, pagination.page]);
@@ -22,7 +24,7 @@ const ModeratorPage = () => {
             setOfferStatusModerator({ id, status })
         );
 
-        if (setOfferStatusModerator.fulfilled.match(resultAction)) {            
+        if (setOfferStatusModerator.fulfilled.match(resultAction)) {
             const updatedOffers = offers.filter(offer => offer.id !== id);
             dispatch({
                 type: 'moderatorOffers/setOffersManually',
@@ -38,7 +40,7 @@ const ModeratorPage = () => {
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Moderator Dashboard</h1>
-            
+
             {error && (
                 <div className={styles.error}>
                     {error.message || 'Failed to load offers'}
@@ -62,7 +64,7 @@ const ModeratorPage = () => {
                     </button>
                 </div>
             )}
-            
+
             <div className={styles.tableWrapper}>
                 {isFetching ? (
                     <div className={styles.loader}>Loading...</div>
@@ -77,6 +79,7 @@ const ModeratorPage = () => {
                                 <th>Text</th>
                                 <th>File</th>
                                 <th>Status</th>
+                                <th>Details</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -104,6 +107,16 @@ const ModeratorPage = () => {
                                     </td>
                                     <td>
                                         <button
+                                            className={styles.detailsBtn}
+                                            onClick={() =>
+                                                setSelectedOffer(offer)
+                                            }
+                                        >
+                                            View
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button
                                             className={`${styles.btn} ${styles.approveBtn}`}
                                             onClick={() =>
                                                 handleStatusChange(
@@ -112,7 +125,7 @@ const ModeratorPage = () => {
                                                 )
                                             }
                                         >
-                                            Approve
+                                            ✅
                                         </button>
                                         <button
                                             className={`${styles.btn} ${styles.declineBtn}`}
@@ -123,7 +136,7 @@ const ModeratorPage = () => {
                                                 )
                                             }
                                         >
-                                            Decline
+                                            ❌
                                         </button>
                                     </td>
                                 </tr>
@@ -132,7 +145,7 @@ const ModeratorPage = () => {
                     </table>
                 )}
             </div>
-            
+
             {pagination.totalPages > 1 && (
                 <div className={styles.pagination}>
                     {Array.from({ length: pagination.totalPages }).map(
@@ -150,6 +163,45 @@ const ModeratorPage = () => {
                             </button>
                         )
                     )}
+                </div>
+            )}
+
+            {selectedOffer && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2>Contest Details</h2>
+
+                        <p>
+                            <b>Contest Title:</b> {selectedOffer.Contest.title}
+                        </p>
+                        <p>
+                            <b>Contest Type:</b>{' '}
+                            {selectedOffer.Contest.contestType}
+                        </p>
+                        <p>
+                            <b>Industry:</b> {selectedOffer.Contest.industry}
+                        </p>
+                        <p>
+                            <b>Style:</b>{' '}
+                            {selectedOffer.Contest.styleName ||
+                                selectedOffer.Contest.brandStyle}
+                        </p>
+                        <p>
+                            <b>Business Focus:</b>{' '}
+                            {selectedOffer.Contest.focusOfWork || '—'}
+                        </p>
+                        <p>
+                            <b>Target Audience:</b>{' '}
+                            {selectedOffer.Contest.targetCustomer || '—'}
+                        </p>
+
+                        <button
+                            className={styles.closeModal}
+                            onClick={() => setSelectedOffer(null)}
+                        >
+                            Close
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
