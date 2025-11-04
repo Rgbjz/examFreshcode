@@ -3,7 +3,7 @@ const checkToken = require('../middlewares/checkToken');
 const validators = require('../middlewares/validators');
 const basicMiddlewares = require('../middlewares/basicMiddlewares');
 const upload = require('../utils/fileUpload');
-const userController = require('../controllers/userController');
+const paymentController = require('../controllers/paymentController');
 const contestController = require('../controllers/contestController');
 const contestRouter = Router();
 
@@ -14,7 +14,7 @@ contestRouter.post(
     upload.uploadContestFiles,
     basicMiddlewares.parseBody,
     validators.validateContestCreation,
-    userController.payment
+    paymentController.payment
 );
 
 contestRouter.get(

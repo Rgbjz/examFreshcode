@@ -20,13 +20,6 @@ userRouter.patch(
     userController.updateUser
 );
 
-userRouter.post(
-    '/cashout',
-    checkToken.checkToken,
-    basicMiddlewares.onlyForCreative,
-    userController.cashout
-);
-
 userRouter.get('/getUser', checkToken.checkAuth);
 
 module.exports = userRouter;
