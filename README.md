@@ -59,9 +59,11 @@ added a link to "ButtonGroup" to the "Button Group" page in the user menu
 
 DB NO-SQL
 
-Added db-no-sql directory to server/
+The logic for counting the number of records containing the word "поровоз" in the Messages collection is implemented in the statController located in:
 
-It contains a query.mongodb query to count the number of records containing the word "locomotive" in the Messages collection.
+server/controllers/statController.js
+
+This controller executes the required MongoDB query and returns the result.
 
 DB SQL
 
