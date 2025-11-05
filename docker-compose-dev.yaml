@@ -1,14 +1,16 @@
-# version: '3'
+version: '3.9'
+
 services:
 
   front-react:
     build:
       context: ./client
-
     environment:
       NODE_ENV: development
     depends_on:
       - server-dev
+    env_file:
+      - ./server/.env
     volumes:
       - ./client:/client
       - /client/node_modules
@@ -18,28 +20,27 @@ services:
   server-dev:
     build:
       context: ./server
-
-    environment:
-      NODE_ENV: development
+    env_file:
+      - ./server/.env
     ports:
       - "5000:5000"
     depends_on:
-      - db-dev      
+      - db-dev
     volumes:
       - ./var/www/html/images:/var/www/html/images
       - ./server:/server
       - /server/node_modules
 
-
-
   db-dev:
     image: postgres:15.5-bullseye
     environment:
-      - POSTGRES_PASSWORD=qwertyplayer19
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=squad-help-dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwertyplayer19
+      POSTGRES_DB: squad-help-dev
     ports:
       - "12346:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
-  server-dev:
+  pgdata:
