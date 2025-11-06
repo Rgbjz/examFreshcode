@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styles from './ContestCreationPage.module.sass';
@@ -7,7 +7,6 @@ import NextButton from '../../components/NextButton/NextButton';
 import ContestForm from '../../components/ContestForm/ContestForm';
 import BackButton from '../../components/BackButton/BackButton';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
-import store from '../../store/index';
 
 const ContestCreationPage = props => {
     const formRef = useRef();
@@ -26,6 +25,7 @@ const ContestCreationPage = props => {
                 : `/startContest/${
                       props.bundleStore.bundle[props.contestType]
                   }Contest`;
+
         navigate(route);
     };
 
@@ -35,7 +35,11 @@ const ContestCreationPage = props => {
         }
     };
 
-    !props.bundleStore.bundle && navigate('/startContest', { replace: true });
+    useEffect(() => {
+        if (!props.bundleStore.bundle) {
+            navigate('/startContest', { replace: true });
+        }
+    }, [props.bundleStore.bundle, navigate]);
 
     return (
         <div>

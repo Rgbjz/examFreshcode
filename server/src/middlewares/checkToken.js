@@ -11,6 +11,7 @@ module.exports.checkAuth = async (req, res, next) => {
     try {
         const tokenData = jwt.verify(accessToken, CONSTANTS.JWT_SECRET);
         const foundUser = await userQueries.findUser({ id: tokenData.userId });
+
         res.send({
             firstName: foundUser.firstName,
             lastName: foundUser.lastName,
@@ -21,7 +22,11 @@ module.exports.checkAuth = async (req, res, next) => {
             balance: foundUser.balance,
             email: foundUser.email,
         });
+        next();
     } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).send({ refresh: true });
+        }
         next(new TokenError());
     }
 };
@@ -31,10 +36,15 @@ module.exports.checkToken = async (req, res, next) => {
     if (!accessToken) {
         return next(new TokenError('need token'));
     }
+
     try {
         req.tokenData = jwt.verify(accessToken, CONSTANTS.JWT_SECRET);
         next();
     } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).send({ refresh: true });
+        }
+
         next(new TokenError());
     }
 };

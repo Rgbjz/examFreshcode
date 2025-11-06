@@ -50,6 +50,11 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.TEXT,
                 allowNull: true,
             },
+            refreshToken: {
+                // ✅ ДОБАВЛЕНО
+                type: DataTypes.TEXT,
+                allowNull: true,
+            },
             rating: {
                 type: DataTypes.FLOAT,
                 allowNull: false,

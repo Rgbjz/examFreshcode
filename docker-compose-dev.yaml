@@ -38,9 +38,8 @@ services:
       POSTGRES_PASSWORD: qwertyplayer19
       POSTGRES_DB: squad-help-dev
     ports:
-      - "12346:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+      - "12346:5432"    
+    tmpfs:
+      - /var/lib/postgresql/data
 
-volumes:
-  pgdata:
+volumes: {}

@@ -5,8 +5,16 @@ import styles from './Header.module.sass';
 import CONSTANTS from '../../constants';
 import { clearUserStore, getUser } from '../../store/slices/userSlice';
 import withRouter from '../../hocs/withRouter';
+import { logout } from '../../store/slices/authSlice';
 
-const Header = ({ data, isFetching, getUser, clearUserStore, navigate }) => {
+const Header = ({
+    data,
+    isFetching,
+    getUser,
+    clearUserStore,
+    navigate,
+    logout,
+}) => {
     useEffect(() => {
         if (!data) {
             getUser();
@@ -19,11 +27,10 @@ const Header = ({ data, isFetching, getUser, clearUserStore, navigate }) => {
         }
     }, [data, navigate]);
 
-    const logOut = useCallback(() => {
-        localStorage.clear();
+    const logOut = useCallback(async () => {
+        await logout({ navigate });
         clearUserStore();
-        navigate('/login', { replace: true });
-    }, [clearUserStore, navigate]);
+    }, [logout, clearUserStore, navigate]);
 
     const startContests = () => navigate('/startContest');
     const reviewOffers = () => navigate('/moderator');
@@ -386,6 +393,7 @@ const mapStateToProps = state => state.userStore;
 const mapDispatchToProps = dispatch => ({
     getUser: () => dispatch(getUser()),
     clearUserStore: () => dispatch(clearUserStore()),
+    logout: payload => dispatch(logout(payload)),
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Header));

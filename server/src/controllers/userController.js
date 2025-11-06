@@ -16,6 +16,7 @@ module.exports.login = async (req, res, next) => {
             req.body.password,
             foundUser.password
         );
+
         const accessToken = jwt.sign(
             {
                 firstName: foundUser.firstName,
@@ -31,17 +32,37 @@ module.exports.login = async (req, res, next) => {
             CONSTANTS.JWT_SECRET,
             { expiresIn: CONSTANTS.ACCESS_TOKEN_TIME }
         );
-        await userQueries.updateUser({ accessToken }, foundUser.id);
+
+        const refreshToken = jwt.sign(
+            { userId: foundUser.id },
+            CONSTANTS.JWT_REFRESH_SECRET,
+            { expiresIn: CONSTANTS.REFRESH_TOKEN_TIME || '30d' }
+        );
+
+        await userQueries.updateUser(
+            { accessToken, refreshToken },
+            foundUser.id
+        );
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+
         res.send({ token: accessToken });
     } catch (err) {
         next(err);
     }
 };
+
 module.exports.registration = async (req, res, next) => {
     try {
         const newUser = await userQueries.userCreation(
             Object.assign(req.body, { password: req.hashPass })
         );
+
         const accessToken = jwt.sign(
             {
                 firstName: newUser.firstName,
@@ -57,7 +78,22 @@ module.exports.registration = async (req, res, next) => {
             CONSTANTS.JWT_SECRET,
             { expiresIn: CONSTANTS.ACCESS_TOKEN_TIME }
         );
-        await userQueries.updateUser({ accessToken }, newUser.id);
+
+        const refreshToken = jwt.sign(
+            { userId: newUser.id },
+            CONSTANTS.JWT_REFRESH_SECRET,
+            { expiresIn: CONSTANTS.REFRESH_TOKEN_TIME || '30d' }
+        );
+
+        await userQueries.updateUser({ accessToken, refreshToken }, newUser.id);
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+
         res.send({ token: accessToken });
     } catch (err) {
         if (err.name === 'SequelizeUniqueConstraintError') {
@@ -65,6 +101,24 @@ module.exports.registration = async (req, res, next) => {
         } else {
             next(err);
         }
+    }
+};
+
+module.exports.logout = async (req, res, next) => {
+    try {
+        const userId = req.tokenData.userId;
+
+        await userQueries.updateUser({ refreshToken: null }, userId);
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+        });
+
+        res.send({ message: 'Logged out successfully' });
+    } catch (err) {
+        next(err);
     }
 };
 

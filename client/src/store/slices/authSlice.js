@@ -25,6 +25,17 @@ export const checkAuth = decorateAsyncThunk({
     },
 });
 
+export const logout = decorateAsyncThunk({
+    key: `${AUTH_SLICE_NAME}/logout`,
+    thunk: async ({ navigate }) => {
+        await authApi.logoutRequest();
+
+        localStorage.removeItem(CONSTANTS.ACCESS_TOKEN);
+
+        navigate('/login', { replace: true });
+    },
+});
+
 const reducers = {
     clearAuthError: state => {
         state.error = null;
@@ -36,6 +47,9 @@ const extraReducers = builder => {
     builder.addCase(checkAuth.pending, pendingReducer);
     builder.addCase(checkAuth.fulfilled, fulfilledReducer);
     builder.addCase(checkAuth.rejected, rejectedReducer);
+    builder.addCase(logout.pending, pendingReducer);
+    builder.addCase(logout.fulfilled, fulfilledReducer);
+    builder.addCase(logout.rejected, rejectedReducer);
 };
 
 const authSlice = createSlice({

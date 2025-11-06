@@ -6,10 +6,11 @@ let notificationController;
 let chatController;
 
 const cors = {
-    origin: '*',
+    origin: 'http://localhost:3000',
+    credentials: true,
 };
 
-module.exports.createConnection = (httpServer) => {
+module.exports.createConnection = httpServer => {
     const io = new Server(httpServer, { cors });
     notificationController = new NotificationController();
     notificationController.connect('/notifications', io);
