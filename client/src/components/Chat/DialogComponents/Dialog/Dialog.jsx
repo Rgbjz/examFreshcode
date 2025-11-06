@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
 import classNames from 'classnames';
@@ -12,26 +12,30 @@ import styles from './Dialog.module.sass';
 
 const Dialog = ({ userId }) => {
     const dispatch = useDispatch();
+    const messagesEndRef = useRef(null);
 
     const { messages, messagesPreview, interlocutor } = useSelector(
         state => state.chatStore
     );
 
-    const messagesEndRef = useRef(null);
+    const [isMessagesLoaded, setIsMessagesLoaded] = useState(false);
 
     const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, []);
 
     const loadDialog = useCallback(() => {
-        if (interlocutor?.id) {
+        if (interlocutor?.id && !isMessagesLoaded) {
             dispatch(getDialogMessages({ interlocutorId: interlocutor.id }));
+            setIsMessagesLoaded(true);
         }
-    }, [dispatch, interlocutor]);
+    }, [dispatch, interlocutor?.id, isMessagesLoaded]);
 
     useEffect(() => {
-        loadDialog();
-    }, [loadDialog]);
+        if (interlocutor?.id) {
+            loadDialog();
+        }
+    }, [interlocutor, loadDialog]);
 
     useEffect(() => {
         scrollToBottom();
@@ -40,6 +44,7 @@ const Dialog = ({ userId }) => {
     useEffect(() => {
         return () => {
             dispatch(clearMessageList());
+            setIsMessagesLoaded(false);
         };
     }, [dispatch]);
 
@@ -69,7 +74,6 @@ const Dialog = ({ userId }) => {
                         message.createdAt,
                         'date'
                     );
-
                     if (showDate) currentTime = moment(message.createdAt);
 
                     return (
@@ -81,7 +85,6 @@ const Dialog = ({ userId }) => {
                                     )}
                                 </div>
                             )}
-
                             <div
                                 className={classNames(
                                     userId === message.sender
@@ -97,13 +100,14 @@ const Dialog = ({ userId }) => {
                         </React.Fragment>
                     );
                 })}
-
                 <div ref={messagesEndRef} />
             </div>
         );
     };
 
     const renderBlockMessage = () => {
+        if (!chatData || !chatData.blackList) return null;
+
         const { blackList, participants } = chatData;
         const userIndex = participants.indexOf(userId);
 

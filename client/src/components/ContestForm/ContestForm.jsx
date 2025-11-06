@@ -26,8 +26,10 @@ const ContestForm = ({ contestType, defaultData, handleSubmit, formRef }) => {
     const navigate = useNavigate();
     const params = useParams();
 
-    const { dataForContest } = useSelector(state => state);
-    const { isEditContest } = useSelector(state => state.contestByIdStore);
+    const dataForContest = useSelector(state => state.dataForContest);
+    const isEditContest = useSelector(
+        state => state.contestByIdStore.isEditContest
+    );
 
     const getPreference = useCallback(() => {
         switch (contestType) {

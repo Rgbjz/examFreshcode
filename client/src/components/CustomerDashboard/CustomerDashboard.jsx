@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import {
@@ -17,57 +17,48 @@ const CustomerDashboard = ({ navigate }) => {
     const { contests, error, haveMore, customerFilter, isFetching } =
         useSelector(state => state.contestsList);
 
-    const loadMore = startFrom => {
-        dispatch(
-            getContests({
-                requestData: {
-                    limit: 8,
-                    offset: startFrom,
-                    contestStatus: customerFilter,
-                },
-                role: CONSTANTS.CUSTOMER,
-            })
-        );
-    };
+    const prevFilterRef = useRef(customerFilter);
 
-    const getContestListRequest = useCallback(() => {
-        dispatch(
-            getContests({
-                requestData: { limit: 8, contestStatus: customerFilter },
-                role: CONSTANTS.CUSTOMER,
-            })
-        );
-    }, [dispatch, customerFilter]);
+    const loadContests = useCallback(
+        (offset = 0) => {
+            dispatch(
+                getContests({
+                    requestData: {
+                        limit: 8,
+                        offset,
+                        contestStatus: customerFilter,
+                    },
+                    role: CONSTANTS.CUSTOMER,
+                })
+            );
+        },
+        [dispatch, customerFilter]
+    );
 
     useEffect(() => {
-        getContestListRequest();
-        return () => {
-            dispatch(clearContestsList());
-        };
+        dispatch(clearContestsList());
+        loadContests(0);
     }, []);
-    useEffect(() => {
-        if (!isFetching && contests.length === 0) {
-            dispatch(clearContestsList());
-            getContestListRequest();
-        }
-    }, [customerFilter]);
 
-    const goToExtended = contest_id => {
-        navigate(`/contest/${contest_id}`);
+    useEffect(() => {
+        if (prevFilterRef.current !== customerFilter) {
+            prevFilterRef.current = customerFilter;
+            dispatch(clearContestsList());
+            loadContests(0);
+        }
+    }, [customerFilter, loadContests, dispatch]);
+
+    const loadMore = () => {
+        if (!isFetching && haveMore) {
+            loadContests(contests.length);
+        }
     };
 
-    const setContestList = () =>
-        contests.map((contest, i) => (
-            <ContestBox
-                data={contest}
-                key={`${contest.id}-${i}`}
-                goToExtended={goToExtended}
-            />
-        ));
+    const goToExtended = id => navigate(`/contest/${id}`);
 
     const tryToGetContest = () => {
         dispatch(clearContestsList());
-        getContestListRequest();
+        loadContests(0);
     };
 
     return (
@@ -135,10 +126,15 @@ const CustomerDashboard = ({ navigate }) => {
                     <ContestsContainer
                         isFetching={isFetching}
                         loadMore={loadMore}
-                        navigate={navigate}
                         haveMore={haveMore}
                     >
-                        {setContestList()}
+                        {contests.map(c => (
+                            <ContestBox
+                                key={c.id}
+                                data={c}
+                                goToExtended={goToExtended}
+                            />
+                        ))}
                     </ContestsContainer>
                 )}
             </div>

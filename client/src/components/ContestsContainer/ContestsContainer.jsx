@@ -4,26 +4,22 @@ import Spinner from '../Spinner/Spinner';
 
 const ContestsContainer = ({ isFetching, haveMore, loadMore, children }) => {
     const scrollHandler = useCallback(() => {
-        if (
-            window.innerHeight + document.documentElement.scrollTop ===
-            document.documentElement.offsetHeight
-        ) {
-            if (haveMore) {
-                loadMore(children.length);
-            }
+        const reachedBottom =
+            window.innerHeight + document.documentElement.scrollTop + 2 >=
+            document.documentElement.offsetHeight;
+
+        if (reachedBottom && haveMore && !isFetching) {
+            loadMore(children.length);
         }
-    }, [haveMore, loadMore, children]);
+    }, [haveMore, isFetching, children.length, loadMore]);
 
     useEffect(() => {
         window.addEventListener('scroll', scrollHandler);
-
-        return () => {
-            window.removeEventListener('scroll', scrollHandler);
-        };
+        return () => window.removeEventListener('scroll', scrollHandler);
     }, [scrollHandler]);
 
     if (!isFetching && children.length === 0) {
-        return <div className={styles.notFound}>Nothing not found</div>;
+        return <div className={styles.notFound}>Nothing found</div>;
     }
 
     return (

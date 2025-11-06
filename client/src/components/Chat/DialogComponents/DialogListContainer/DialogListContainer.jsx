@@ -7,7 +7,9 @@ const DialogListContainer = ({ userId }) => {
     const dispatch = useDispatch();
     const { messagesPreview } = useSelector(state => state.chatStore);
 
-    useEffect(() => {}, [dispatch]);
+    useEffect(() => {
+        dispatch(getPreviewChat());
+    }, [dispatch]);
 
     return <DialogList preview={messagesPreview} userId={userId} />;
 };
