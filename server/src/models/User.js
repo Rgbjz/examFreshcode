@@ -51,7 +51,6 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: true,
             },
             refreshToken: {
-                // ✅ ДОБАВЛЕНО
                 type: DataTypes.TEXT,
                 allowNull: true,
             },

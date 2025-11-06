@@ -23,7 +23,6 @@ instance.interceptors.response.use(
     async err => {
         const original = err.config;
 
-        // 1️⃣ Токен протух — обычный refresh
         if (
             err.response &&
             err.response.status === 401 &&
@@ -51,7 +50,6 @@ instance.interceptors.response.use(
             }
         }
 
-        // 2️⃣ Токена нет (удалён вручную) — пробуем refresh
         if (!localStorage.getItem(CONTANTS.ACCESS_TOKEN) && !original._retry) {
             original._retry = true;
             try {
