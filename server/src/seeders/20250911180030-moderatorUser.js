@@ -15,7 +15,7 @@ module.exports = {
                     role: MODERATOR,
                 },
             ],
-            {}
+            { ignoreDuplicates: true }
         );
     },
 

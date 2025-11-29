@@ -125,7 +125,7 @@ const ModeratorPage = () => {
                                                 )
                                             }
                                         >
-                                            ✅
+                                            Approve
                                         </button>
                                         <button
                                             className={`${styles.btn} ${styles.declineBtn}`}
@@ -136,7 +136,7 @@ const ModeratorPage = () => {
                                                 )
                                             }
                                         >
-                                            ❌
+                                            Reject
                                         </button>
                                     </td>
                                 </tr>
