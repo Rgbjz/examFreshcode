@@ -1,4 +1,4 @@
-const db = require('../models');
+const db = require('../db/models');
 const { Op } = require('sequelize');
 const ServerError = require('../errors/ServerError');
 const contestQueries = require('./queries/contestQueries');

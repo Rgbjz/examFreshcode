@@ -1,4 +1,4 @@
-const Message = require('../models/mongoModels/Message');
+const Message = require('../db/models/mongoModels/Message');
 
 module.exports.countParovozMessages = async (req, res, next) => {
     try {

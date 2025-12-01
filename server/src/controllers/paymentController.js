@@ -1,4 +1,4 @@
-const bd = require('../models');
+const bd = require('../db/models');
 const moment = require('moment');
 const { v4: uuid } = require('uuid');
 const bankQueries = require('../controllers/queries/bankQueries');
